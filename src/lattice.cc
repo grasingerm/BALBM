@@ -1,5 +1,7 @@
 #include "lattice.hh"
 #include <algorithm>
+#include <array>
+#include <vector>
 
 namespace balbm
 {
@@ -72,4 +74,11 @@ LatticeD2Q9& LatticeD2Q9::operator=(LatticeD2Q9&& lat)
   return *this;
 }
 
+//! Stream particle distribution functions
+//!
+//! \param bounds Vector of arrays of {begin_i, end_i, begin_j, end_j}
+void stream(const std::vector<std::array<unsigned, 4>>& bounds)
+{
+  for (const auto& row : bounds)
+    stream(row[0], row[1], row[2], row[3]);
 }
