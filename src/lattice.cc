@@ -6,6 +6,17 @@
 namespace balbm
 {
 
+//! \var static class member lat_vecs Lattice vectors for D2Q9
+const double LatticeD2Q9::lat_vecs[9][2] = { {   0.0,    0.0   },
+                                       {   1.0,    0.0   }, {   0.0,    1.0   },
+                                       {  -1.0,    0.0   }, {   0.0,   -1.0   },
+                                       {   1.0,    1.0   }, {  -1.0,    1.0   },
+                                       {  -1.0,   -1.0   }, {   1.0,   -1.0   }
+                                     };
+
+const double LatticeD2Q9::_dx = 1.0;
+const double LatticeD2Q9::_dt = 1.0;
+
 //! Copy constructor for D2Q9 lattice
 //!
 //! \param lat Lattice to copy
@@ -82,3 +93,5 @@ void stream(const std::vector<std::array<unsigned, 4>>& bounds)
   for (const auto& row : bounds)
     stream(row[0], row[1], row[2], row[3]);
 }
+
+} // namespace balbm
