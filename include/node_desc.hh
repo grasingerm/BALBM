@@ -1,55 +1,98 @@
 #ifndef __NODE_DESC_HH__
 #define __NODE_DESC_HH__
 
+// Complex flow simulator using lattice Boltzmann method
+// Copyright (C) 2015 Matthew Grasinger
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// A copy of the GNU General Public License is at the root directory of
+// this program.  If not, see <http://www.gnu.org/licenses/>
+
+#include "balbm_config.hh"
+
 namespace balbm
 {
 
 namespace d2q9
 {
-//! \class NodeDesc
+//! \class AbstractNodeDesc
 //!
 //! \brief Abstract base class for  node descriptors
 //!
 //! Provide polymorphic behavior for each node in the lattice based on its
 //! physical "status" as a node, e.g. change behavior of streaming and collision
 //! steps in order to simulate appropriate physics and boundary conditions
-class NodeDesc
+class AbstractNodeDesc
 {
 public:
-  virtual void stream const(Lattice&, const unsigned, const unsigned)=0;
-  virtual void collide_and_bound const (Lattice&, const CollisionManager&,
-                                        const unsigned, const unsigned)=0;
+  inline void stream(Lattice&, const unsigned, const unsigned) const;
+  inline void collide_and_bound(Lattice&, const CollisionManager&,
+                                const unsigned, const unsigned) const noexcept;
   virtual ~NodeDesc()=0;
+private:
+  virtual void _stream(Lattice&, const unsigned, const unsigned) const
+                       noexcept=0;
+  virtual void _stream_with_bcheck(Lattice&, const unsigned, 
+                                   const unsigned) const=0;
+  virtual void _collide_and_bound(Lattice&, const CollisionManager&,
+                                  const unsigned, const unsigned) 
+                                  const noexcept=0;
 };
 
-//! \class NodeDescInactive
+//! \class NodeInactive
 //!
-//! \brief Inactive node
-//!
+//! \brief Inactive node //!
 //! Represents an inactive node in the domain
-class NodeInactive : public NodeDesc
+class NodeInactive : public AbstractNodeDesc
 {
 public:
-  inline void stream const (Lattice& lat, 
-                            const unsigned i, const unsigned j) {}
-  inline void collide_and_bound const 
-    (Lattice& lat, const CollisionManager& cman, const unsigned i,
-     const unsigned j) {}
+  ~NodeInactive() {}
+private:
+  virtual void _stream(Lattice&, const unsigned, const unsigned) const
+                       noexcept {}
+  virtual void _stream_with_bcheck(Lattice&, const unsigned, 
+                                   const unsigned) const {}
+  virtual void _collide_and_bound(Lattice&, const CollisionManager&,
+                                  const unsigned, const unsigned) 
+                                  const noexcept {};
 };
 
-//! \class NodeDescActive
+//! \class AbstractNodeActive
 //!
 //! \brief Active node
 //!
 //! Represents an active node in the domain where streaming and collision
 //! occur
-class NodeActive : public NodeDesc
+class AbstractNodeActive : public AbstractNodeDesc
 {
 public:
-  virtual void stream const (Lattice&, const unsigned, const unsigned);
-  virtual void collide_and_bound const (Lattice&, const CollisionManager&,
-                                        const unsigned, const unsigned);
-  virtual ~NodeActive() {}
+  virtual ~NodeActive()=0;
+private:
+  virtual void _stream(Lattice&, const unsigned, const unsigned) const noexcept;
+  virtual void _stream_with_bcheck(Lattice&, const unsigned, 
+                           const unsigned) const;
+  virtual void _collide_and_bound(Lattice&, const CollisionManager&,
+                          const unsigned, const unsigned) const noexcept;
+};
+
+//! \class NodeActive
+//!
+//! \brief Concrete active node
+//!
+//! Concrete class of an active node
+class NodeActive : public AbstractNodeActive
+{
+public:
+  ~NodeActive() {}
 };
 
 //! \class NodeWestFacingWall
@@ -57,13 +100,16 @@ public:
 //! \brief West facing wall
 //!
 //! Represents a solid, west facing wall
-class NodeWestFacingWall : public NodeActive
+class NodeWestFacingWall : public AbstractNodeActive
 {
 public:
-  void stream const (Lattice&, const unsigned, const unsigned);
-  void collide_and_bound const (Lattice&, const CollisionManager&,
-                                        const unsigned, const unsigned);
   ~NodeWestFacingWall() {}
+private:
+  void _stream(Lattice&, const unsigned, const unsigned) const;
+  void _stream_with_bcheck(Lattice&, const unsigned, 
+                           const unsigned) const;
+  void _collide_and_bound(Lattice&, const CollisionManager&,
+                          const unsigned, const unsigned) const;
 };
 
 //! \class NodeSouthFacingWall
@@ -71,13 +117,16 @@ public:
 //! \brief South facing wall
 //!
 //! Represents a solid, south facing wall
-class NodeSouthFacingWall : public NodeActive
+class NodeSouthFacingWall : public AbstractNodeActive
 {
 public:
-  void stream const (Lattice&, const unsigned, const unsigned);
-  void collide_and_bound const (Lattice&, const CollisionManager&,
-                                        const unsigned, const unsigned);
   ~NodeSouthFacingWall() {}
+private:
+  void _stream(Lattice&, const unsigned, const unsigned) const;
+  void _stream_with_bcheck(Lattice&, const unsigned, 
+                           const unsigned) const;
+  void _collide_and_bound(Lattice&, const CollisionManager&,
+                          const unsigned, const unsigned) const;
 };
 
 //! \class NodeEastFacingWall
@@ -85,13 +134,16 @@ public:
 //! \brief East facing wall
 //!
 //! Represents a solid, east facing wall
-class NodeEastFacingWall : public NodeActive
+class NodeEastFacingWall : public AbstractNodeActive
 {
 public:
-  void stream const (Lattice&, const unsigned, const unsigned);
-  void collide_and_bound const (Lattice&, const CollisionManager&,
-                                        const unsigned, const unsigned);
   ~NodeEastFacingWall() {}
+private:
+  void _stream(Lattice&, const unsigned, const unsigned) const;
+  void _stream_with_bcheck(Lattice&, const unsigned, 
+                           const unsigned) const;
+  void _collide_and_bound(Lattice&, const CollisionManager&,
+                          const unsigned, const unsigned) const;
 };
 
 //! \class NodeNorthFacingWall
@@ -99,13 +151,16 @@ public:
 //! \brief North facing wall
 //!
 //! Represents a solid, North facing wall
-class NodeNorthFacingWall : public NodeActive
+class NodeNorthFacingWall : public AbstractNodeActive
 {
 public:
-  void stream const (Lattice&, const unsigned, const unsigned);
-  void collide_and_bound const (Lattice&, const CollisionManager&,
-                                        const unsigned, const unsigned);
   ~NodeNorthFacingWall() {}
+private:
+  void _stream(Lattice&, const unsigned, const unsigned) const;
+  void _stream_with_bcheck(Lattice&, const unsigned, 
+                           const unsigned) const;
+  void _collide_and_bound(Lattice&, const CollisionManager&,
+                          const unsigned, const unsigned) const;
 };
 
 } // namespace d2q9

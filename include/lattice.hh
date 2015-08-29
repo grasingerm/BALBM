@@ -1,11 +1,28 @@
 #ifndef __LATTICE_HH__
 #define __LATTICE_HH__
 
+// Complex flow simulator using lattice Boltzmann method
+// Copyright (C) 2015 Matthew Grasinger
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// A copy of the GNU General Public License is at the root directory of
+// this program.  If not, see <http://www.gnu.org/licenses/>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <memory>
 #include <vector>
+#include "balbm_config.hh"
 
 namespace balbm
 {
@@ -29,8 +46,10 @@ namespace d2q9
 //!
 class Lattice
 {
+  friend class NodeDesc;
 public:
   // constructors and assignment
+  // TODO: make more constructors, initializers, and factories
   Lattice() : _nx(0), _ny(0), _f(nullptr), _ftemp(nullptr) {}
   Lattice(unsigned nx, unsigned ny) : _nx(nx), _ny(ny),
     _f(std::make_unique(new double[nx * ny * num_k()])), 
@@ -46,27 +65,13 @@ public:
     // static and constant expression values
   static constexpr double dx() const { return _dx; }
   static constexpr double dt() const { return _dt; }
-  static constexpr double c() { return _dx / _dt; }
-  static constexpr double cs() { return c() / sqrt(3.0); }
-  static constexpr double cssq() { return cs() * cs(); }
+  static constexpr double c() const { return _dx / _dt; }
+  static constexpr double cs() const { return c() / sqrt(3.0); }
+  static constexpr double cssq() const { return cs() * cs(); }
   inline unsigned num_x() const { return _nx; }
   inline unsigned num_y() const { return _ny; }
   static constexpr unsigned num_k() const { return 9; }
-    // lattice vectors and particle distribution functions
-  inline double* pk(const unsigned k) const { return (&_lat_vecs[2 * k]); }
-  inline double k(const unsigned c, const unsigned k) const 
-    { return *(pk(k) + c); }
-  inline double* pf(const unsigned i, const unsigned j) const 
-    { return &(_f[i*_nx + j]); }
-  inline double f(const unsigned i, const unsigned j, const unsigned k) const
-    { return *(pf(i, j) + k); }
-  inline double* pft(const unsigned i, const unsigned j) const 
-    { return &(ftemp[i*_nx + j]); }
-  inline double ft(const unsigned i, const unsigned j, const unsigned k) const
-    { return *(pft(i, j) + k); }
-  inline NodeDesc& node_desc(const unsigned i, const unsigned j) const
-    { return *(_node_descs[_nx * i + j]); }
-
+    
   // mutators
     // stream
   inline void stream(const unsigned i, const unsigned j) 
@@ -104,6 +109,21 @@ private:
   std::unique_ptr<double[]> _ftemp;
   std::vector<std::unique_ptr<NodeDesc>> _node_descs;
   inline void finalize_step() { std::swap(_f, _ftemp); }
+
+  // lattice vectors and particle distribution functions
+  inline double* pk(const unsigned k) { return (&_lat_vecs[2 * k]); }
+  inline double k(const unsigned k, const unsigned c) const 
+    { return *(pk(k) + c); }
+  inline double* pf(const unsigned i, const unsigned j) 
+    { return &(_f[i*_nx + j]); }
+  inline double f(const unsigned i, const unsigned j, const unsigned k) const
+    { return *(pf(i, j) + k); }
+  inline double* pft(const unsigned i, const unsigned j) 
+    { return &(ftemp[i * _nx + j]); }
+  inline double ft(const unsigned i, const unsigned j, const unsigned k) const
+    { return *(pft(i, j) + k); }
+  inline const NodeDesc& node_desc(const unsigned i, const unsigned j) const
+    { return *(_node_descs[_nx * i + j]); }
 };
 
 } // namespace d2q9
