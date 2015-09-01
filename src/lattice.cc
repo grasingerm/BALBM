@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <array>
 #include <vector>
+#include <armadillo>
 
 namespace balbm
 {
@@ -26,48 +27,44 @@ namespace d2q9
 {
 
 //! \var static class member lat_vecs Lattice vectors for 
-const double Lattice::lat_vecs[9][2] = { {   0.0,    0.0   },
+const arma::mat::fixed<2, 9> Lattice::lat_vecs_ ({ {   0.0,    0.0   },
                                        {   1.0,    0.0   }, {   0.0,    1.0   },
                                        {  -1.0,    0.0   }, {   0.0,   -1.0   },
                                        {   1.0,    1.0   }, {  -1.0,    1.0   },
                                        {  -1.0,   -1.0   }, {   1.0,   -1.0   }
-                                     };
+                                                });
 
-const double Lattice::_dx = 1.0;
-const double Lattice::_dt = 1.0;
+const double Lattice::dx_ = 1.0;
+const double Lattice::dt_ = 1.0;
 
 //! Copy constructor for  lattice
 //!
 //! \param lat Lattice to copy
 //! \return Copied lattice
 Lattice::Lattice(const Lattice& lat) 
-  : nx(lat.nx), ny(lat.ny), f(new double[nx * ny * num_k()]),
-    ftemp(new double[nx * ny * num_k()]), node_descs(lat.node_descs)
-{
-  std::copy(&lat.f[0], &lat.f[nx * ny * num_k() - 1], &f[0]);
-  std::copy(&lat.ftemp[0], &lat.ftemp[nx * ny * num_k() - 1], &ftemp[0]);
-}
+  : nx_(lat.num_x()), ny_(lat.num_y()), f_(lat.f()),
+    ftemp_(lat.ftemp()), node_descs_(lat.node_descs())
+{}
 
 //! Assignment for  lattice
 //!
 //! \param lat Lattice to assign
 //! \return Copied lattice
 Lattice& Lattice::operator=(const Lattice& lat) 
-  : nx(lat.nx), ny(lat.ny), f(new double[nx * ny * num_k()]),
-    ftemp(new double[nx * ny * num_k()]), node_descs(lat.node_descs)
 {
   if (this == &lat) return *this;
 
-  if (f.nx * f.ny > nx * ny)
-  {
-    f = std::make_unique(new double[nx * ny * num_k()]);
-    ftemp = std::make_unique(new double[nx * ny * num_k()]);
-  }
+  nx_ = lat.num_x();
+  ny_ = lat.num_y();
 
-  nx = lat.nx;
-  ny = lat.ny;
-  std::copy(&lat.f[0], &lat.f[nx * ny * num_k() - 1], &f[0]);
-  std::copy(&lat.ftemp[0], &lat.ftemp[nx * ny * num_k() - 1], &ftemp[0]);
+  // resize and copy node descriptors
+  node_descs_.resize(_nx * _ny);
+  for (unsigned j = 0; j < _ny; ++j)
+    for (unsigned i = 0; i < _nx; ++i)
+      node_desc(i, j) = lat.node_desc(i, j);
+
+  f_ = lat.f();
+  ftemp_ = lat.ftemp();
 
   return *this;
 }
@@ -77,12 +74,9 @@ Lattice& Lattice::operator=(const Lattice& lat)
 //! \param lat Lattice to be moved
 //! \return Moved lattice
 Lattice::Lattice(Lattice&& lat)
-  : nx(lat.nx), ny(lat.ny), f(std::move(lat.f)), ftemp(std::move(lat.ftemp)), 
-    node_descs(std::move(lat.node_descs))
-{
-  lat.f.reset(nullptr);
-  lat.ftemp.reset(nullptr);
-}
+  : nx_(lat.nx_), ny_(lat.ny_), f_(std::move(lat.f_)), 
+    ftemp_(std::move(lat.ftemp_)), node_descs_(std::move(lat.node_descs_))
+{}
 
 //! Move assignment operator
 //!
@@ -90,14 +84,11 @@ Lattice::Lattice(Lattice&& lat)
 //! \return Moved lattice
 Lattice& Lattice::operator=(Lattice&& lat)
 {
-  nx = lat.nx;
-  ny = lat.ny;
-  f = std::move(lat.f);
-  ftemp = std::move(lat.ftemp);
-  node_descs = std::move(lat.node_descs);
-
-  lat.f.reset(nullptr);
-  lat.ftemp.reset(nullptr);
+  nx_ = lat.nx_;
+  ny_ = lat.ny_;
+  f_ = std::move(lat.f_);
+  ftemp_ = std::move(lat.ftemp_);
+  node_descs_ = std::move(lat.node_descs_);
 
   return *this;
 }
@@ -105,7 +96,7 @@ Lattice& Lattice::operator=(Lattice&& lat)
 //! Stream particle distribution functions
 //!
 //! \param bounds Vector of arrays of {begin_i, end_i, begin_j, end_j}
-void stream(const std::vector<std::array<unsigned, 4>>& bounds)
+void Lattice::stream(const std::vector<std::array<unsigned, 4>>& bounds)
 {
   for (const auto& row : bounds)
     stream(row[0], row[1], row[2], row[3]);

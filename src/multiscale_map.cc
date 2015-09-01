@@ -28,11 +28,11 @@ AbstractMultiscaleMap::~AbstractMultiscaleMap() {}
 //! Map particle distribution functions to density
 //!
 //! \param lat D2Q9 lattice
-AbstractMultiscaleMap::_map_to_macro(const Lattice& lat)
+AbstractMultiscaleMap::map_to_macro_(const Lattice& lat)
 {
-  for (unsigned i = 0; i < num_x(); ++i)
-    for (unsigned j = 0; j < num_y(); ++j)
-      _map_to_macro(i, j);
+  for (unsigned j = 0; j < num_y(); ++j)
+    for (unsigned i = 0; i < num_x(); ++i)
+      map_to_macro_(i, j);
 }
 
 //! Map particle distribution functions to density
@@ -40,13 +40,13 @@ AbstractMultiscaleMap::_map_to_macro(const Lattice& lat)
 //! \param lat D2Q9 lattice
 //! \param i x-coord of node
 //! \param j y-coord of node
-void AbstractMultiscaleMap::_map_to_macro
+void AbstractMultiscaleMap::map_to_macro_
   (const Lattice& lat, const unsigned i, const unsigned j)
 {
   const nk = lat.num_k();
-  _rho(i, j) = 0.;
+  rho_(i, j) = 0.;
   for (unsigned k = 0; i < nk; ++k)
-    _rho(i, j) += lat.f(i, j, k);
+    rho_(i, j) += lat.f(k, i, j);
 }
 
 //! Map particle distribution functions to incompressible flow macroscopic 
@@ -59,16 +59,19 @@ void IncompFlowMultiscaleMap::_map_to_macro
   (const Lattice& lat, const unsigned i, const unsigned j)
 {
   const nk = lat.num_k();
-  _rho(i, j) = 0.;
-  _u(i, j, 0) = 0.;
-  _u(i, j, 1) = 0.;
+  rho_(i, j) = 0.;
+  u_(i, j, 0) = 0.;
+  u_(i, j, 1) = 0.;
 
   for (unsigned k = 0; k < nk; ++k)
   {
-    _rho(i, j) += lat.f(i, j, k);
-    _u(i, j, 0) += lat.k(k, 0);
-    _u(i, j, 1) += lat.k(k, 1);
+    rho_(i, j) += lat.f(i, j, k);
+    u_(0, i, j) += lat.k(0, k) * lat.f(k, i, j);
+    u_(1, i, j) += lat.k(1, k) * lat.f(k, i, j);
   }
+
+  u_(0, i, j) /= rho_(i, j);
+  u_(1, i, j) /= rho_(i, j);
 }
 
 } // namespace d2q9

@@ -1,5 +1,5 @@
-#ifndef __MULTISCALE_MAP_HH__
-#define __MULTISCALE_MAP_HH__
+#ifndef MULTISCALE_MAP_HH
+#define MULTISCALE_MAP_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -18,6 +18,7 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include <memory>
+#include <armadillo>
 #include "lattice.hh"
 
 namespace balbm
@@ -35,22 +36,20 @@ class AbstractMultiscaleMap
 {
 public:
   AbstractMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : _nx(nx), _ny(ny), _rho(std::unique_ptr<double[]>(new double[nx * ny])) {}
+    : nx_(nx), ny_(ny), rho_(arma::mat(nx, ny)) {}
   virtual ~AbstractMultiscaleMap()=0;
-  inline double num_x() const noexcept { return _nx; }
-  inline double num_y() const noexcept { return _ny; }
+  inline double num_x() const noexcept { return nx_; }
+  inline double num_y() const noexcept { return ny_; }
   inline double rho(const unsigned i, const unsigned j) const 
-    { return _sprho[i * _nx + j]; }
-  inline void map_to_macro(const Lattice& lat) { _map_to_macro(lat); }
+    { return rho_(i, j); }
+  inline void map_to_macro(const Lattice& lat) { map_to_macro_(lat); }
 protected:
-  inline double& _rho(const unsigned i, const unsigned j) 
-    { return _sprho[i * _nx + j]; }
-  virtual void _map_to_macro(const Lattice&);
-  virtual void _map_to_macro(const Lattice&, const unsigned, const unsigned);
+  arma::mat rho_;
+  virtual void map_to_macro_(const Lattice&);
+  virtual void map_to_macro_(const Lattice&, const unsigned, const unsigned);
 private:
-  unsigned _nx;
-  unsigned _ny;
-  std::unique_ptr<double[]> _sprho;
+  unsigned nx_;
+  unsigned ny_;
 };
 
 //! \class DensityMultiscaleMap
@@ -70,19 +69,18 @@ class IncompFlowMultiscaleMap : public AbstractMultiscaleMap
 {
 public:
   IncompFlowMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : AbstractMultiscaleMap(nx, ny) {}
+    : AbstractMultiscaleMap(nx, ny), u_(arma::cube(2, nx, ny)) {}
   ~IncompFlowMultiscaleMap() {}
+  inline const arma::cube& u() const { return u_; }
   inline double u(const unsigned i, const unsigned j, const unsigned c) const 
-    { return _spu[2 * (i * _nx + j) + c]; }
+    { return u_(c, i, j); }
 private:
-  inline double& _u(const unsigned i, const unsigned j, const unsigned c)
-    { return _spu[2 * (i * _nx + j) + c]; }
-  void _map_to_macro(const Lattice&, const unsigned, const unsigned);
-  std::unique_ptr<double[]> _spu;
+  void map_to_macro_(const Lattice&, const unsigned, const unsigned);
+  arma::cube u_;
 };
 
 } // namespace d2q9
 
 } // namespace balbm
 
-#endif //__MULTISCALE_MAP_HH__
+#endif //MULTISCALE_MAP_HH
