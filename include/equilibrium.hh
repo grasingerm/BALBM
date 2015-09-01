@@ -1,5 +1,5 @@
-#ifndef __EQUILIBRIUM_HH__
-#define __EQUILIBRIUM_HH__
+#ifndef EQUILIBRIUM_HH
+#define EQUILIBRIUM_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -34,9 +34,9 @@ public:
   virtual ~AbstractEqFunct()=0;
   inline double f const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
                         const unsigned k)
-    { return _f(lat, mmap, k); }
+    { return f_(lat, mmap, k); }
 private:
-  virtual double _f const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
+  virtual double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
                           const unsigned k)=0;
 };
 
@@ -51,7 +51,7 @@ class IncompFlowEqFunct : public AbstractEqFunct
 public:
   ~IncompFlowEqFunct() {}
 private:
-  double _f const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
+  double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
                   const unsigned k);
 };
 
@@ -67,8 +67,8 @@ public:
   ~IncompFlowHLEqFunct() {}
   IncompFlowHLEqFunct(unsigned rho_o) : _rho_o(rho_o) {}
 private:
-  double _rho_o;
-  double _f const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
+  double rho_o_;
+  double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
                   const unsigned k);
 };
 
@@ -76,4 +76,4 @@ private:
 
 } // namespace balbm
 
-#endif // __EQUILIBRIUM_HH__
+#endif // EQUILIBRIUM_HH

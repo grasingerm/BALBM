@@ -33,13 +33,13 @@ AbstractNodeDesc::~AbstractNodeDesc() {}
 //! \param lat D2Q9 lattice
 //! \param i x-coord of node
 //! \param j y-coord of node
-inline void AbstractNodeDesc::stream (Lattice& lat, const unsigned i, const unsigned j) 
-  const
+inline void AbstractNodeDesc::stream(Lattice& lat, const unsigned i, 
+                                     const unsigned j) const
 {
 #ifdef BALBM_CHECK_BOUNDS_STREAMING
-  _stream_with_bcheck(lat, i, j);
+  stream_with_bcheck_(lat, i, j);
 #else
-  _stream(lat, i, j);
+  stream_(lat, i, j);
 #endif
 }
 
@@ -50,7 +50,7 @@ inline void AbstractNodeDesc::collide_and_bound
   (Lattice& lat, const CollisionManager& cman, const unsigned i, 
    const unsigned j) const noexcept
 {
-  _collide_and_bound(lat, cman, i, j);
+  collide_and_bound_(lat, cman, i, j);
 }
 
 //! Virtual destructor definition
@@ -64,7 +64,7 @@ AbstractNodeActive::~AbstractNodeActive() {}
 //! \TODO should we do bounds checking here?
 //! \TODO should we unroll this loop?
 //! \TODO should this be multithreaded?
-void AbstractNodeActive::_stream(Lattice& lat, const unsigned i, 
+void AbstractNodeActive::stream_(Lattice& lat, const unsigned i, 
                                  const unsigned j) const
 {
   const unsigned nk = lat.num_k();
@@ -72,12 +72,12 @@ void AbstractNodeActive::_stream(Lattice& lat, const unsigned i,
 
   for (unsigned k = 0; k < nk; ++k)
   {
-    i_next = i + lat.k(k, 0);
-    j_next = j + lat.k(k, 1);
+    i_next = i + lat.k(0, k);
+    j_next = j + lat.k(1, k);
     assert(i_next < lat.num_x() && i_next >= 0);
     assert(j_next < lat.num_y() && j_next >= 0);
 
-    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
+    lat.ftemp_(k, i_next, j_next) = lat.f_(k, i, j);
   }
 }
 
@@ -89,7 +89,7 @@ void AbstractNodeActive::_stream(Lattice& lat, const unsigned i,
 //! \TODO should we do bounds checking here?
 //! \TODO should we unroll this loop?
 //! \TODO should this be multithreaded?
-void AbstractNodeActive::_stream_with_bcheck(Lattice& lat, const unsigned i, 
+void AbstractNodeActive::stream_with_bcheck_(Lattice& lat, const unsigned i, 
                                              const unsigned j) const
 {
   const unsigned nk = lat.num_k();
@@ -97,8 +97,8 @@ void AbstractNodeActive::_stream_with_bcheck(Lattice& lat, const unsigned i,
 
   for (unsigned k = 0; k < nk; ++k)
   {
-    i_next = i + lat.k(k, 0);
-    j_next = j + lat.k(k, 1);
+    i_next = i + lat.k(0, k);
+    j_next = j + lat.k(1, k);
 
     // check that streaming stays in bounds
     if (!(i_next < lat.num_x() && i_next >= 0 
@@ -111,7 +111,7 @@ void AbstractNodeActive::_stream_with_bcheck(Lattice& lat, const unsigned i,
       throw std::out_of_range (oss.str());
     }
 
-    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
+    lat.ftemp_(k, i_next, j_next) = lat.f_(k, i, j);
   }
 }
 

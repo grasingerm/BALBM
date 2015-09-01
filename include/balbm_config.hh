@@ -14,17 +14,20 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#ifndef __BALBM_CONFIG_HH__
-#define __BALBM_CONFIG_HH__
+#ifndef BALBM_CONFIG_HH
+#define BALBM_CONFIG_HH
 
 //#define NDEBUG
 
 //! Define this to use runtime bounds checking when streaming 
-//#define BALBM_CHECK_BOUNDS_STREAMING
+//#define BALBM_CHECK_BOUNDSstream_ING
+
+//! Define this to disable bounds checking within armadillo
+//#define ARMA_NO_DEBUG
 
 namespace balbm
 {
   constexpr std::string VERSION("0.0.1");
 }
 
-#endif // __BALBM_CONFIG_HH__ 
+#endif // BALBM_CONFIG_HH 
