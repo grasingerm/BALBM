@@ -34,9 +34,9 @@ public:
   virtual ~AbstractEqFunct()=0;
   inline double f const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
                         const unsigned k)
-    { return _f(lat, mmap, k); }
+    { return f_(lat, mmap, k); }
 private:
-  virtual double _f const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
+  virtual double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
                           const unsigned k)=0;
 };
 

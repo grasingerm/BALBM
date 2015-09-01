@@ -35,22 +35,22 @@ class AbstractMultiscaleMap
 {
 public:
   AbstractMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : _nx(nx), _ny(ny), _rho(std::unique_ptr<double[]>(new double[nx * ny])) {}
+    : nx_(nx), ny_(ny), rho_(std::unique_ptr<double[]>(new double[nx * ny])) {}
   virtual ~AbstractMultiscaleMap()=0;
-  inline double num_x() const noexcept { return _nx; }
-  inline double num_y() const noexcept { return _ny; }
+  inline double num_x() const noexcept { return nx_; }
+  inline double num_y() const noexcept { return ny_; }
   inline double rho(const unsigned i, const unsigned j) const 
-    { return _sprho[i * _nx + j]; }
-  inline void map_to_macro(const Lattice& lat) { _map_to_macro(lat); }
+    { return sprho_[i * nx_ + j]; }
+  inline void map_to_macro(const Lattice& lat) { map_to_macro_(lat); }
 protected:
-  inline double& _rho(const unsigned i, const unsigned j) 
-    { return _sprho[i * _nx + j]; }
-  virtual void _map_to_macro(const Lattice&);
-  virtual void _map_to_macro(const Lattice&, const unsigned, const unsigned);
+  inline double& rho_(const unsigned i, const unsigned j) 
+    { return sprho_[i * nx_ + j]; }
+  virtual void map_to_macro_(const Lattice&);
+  virtual void map_to_macro_(const Lattice&, const unsigned, const unsigned);
 private:
-  unsigned _nx;
-  unsigned _ny;
-  std::unique_ptr<double[]> _sprho;
+  unsigned nx_;
+  unsigned ny_;
+  std::unique_ptr<double[]> sprho_;
 };
 
 //! \class DensityMultiscaleMap
@@ -73,12 +73,12 @@ public:
     : AbstractMultiscaleMap(nx, ny) {}
   ~IncompFlowMultiscaleMap() {}
   inline double u(const unsigned i, const unsigned j, const unsigned c) const 
-    { return _spu[2 * (i * _nx + j) + c]; }
+    { return spu_[2 * (i * nx_ + j) + c]; }
 private:
   inline double& _u(const unsigned i, const unsigned j, const unsigned c)
-    { return _spu[2 * (i * _nx + j) + c]; }
-  void _map_to_macro(const Lattice&, const unsigned, const unsigned);
-  std::unique_ptr<double[]> _spu;
+    { return spu_[2 * (i * nx_ + j) + c]; }
+  void map_to_macro_(const Lattice&, const unsigned, const unsigned);
+  std::unique_ptr<double[]> spu_;
 };
 
 } // namespace d2q9

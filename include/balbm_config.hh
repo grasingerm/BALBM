@@ -22,6 +22,12 @@
 //! Define this to use runtime bounds checking when streaming 
 //#define BALBM_CHECK_BOUNDS_STREAMING
 
+//! Define this to disable armadillo bounds checking
+//#define ARMA_NO_DEBUG
+
+//! Define this to allow armadillo to save to hdf5
+//#define ARMA_USE_HDF5
+
 namespace balbm
 {
   constexpr std::string VERSION("0.0.1");

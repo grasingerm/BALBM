@@ -50,7 +50,7 @@ inline void AbstractNodeDesc::collide_and_bound
   (Lattice& lat, const CollisionManager& cman, const unsigned i, 
    const unsigned j) const noexcept
 {
-  _collide_and_bound(lat, cman, i, j);
+  collide_and_bound_(lat, cman, i, j);
 }
 
 //! Virtual destructor definition
@@ -64,7 +64,7 @@ AbstractNodeActive::~AbstractNodeActive() {}
 //! \TODO should we do bounds checking here?
 //! \TODO should we unroll this loop?
 //! \TODO should this be multithreaded?
-void AbstractNodeActive::_stream(Lattice& lat, const unsigned i, 
+void AbstractNodeActive::stream_(Lattice& lat, const unsigned i, 
                                  const unsigned j) const
 {
   const unsigned nk = lat.num_k();
@@ -77,7 +77,7 @@ void AbstractNodeActive::_stream(Lattice& lat, const unsigned i,
     assert(i_next < lat.num_x() && i_next >= 0);
     assert(j_next < lat.num_y() && j_next >= 0);
 
-    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
+    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
   }
 }
 
@@ -89,7 +89,7 @@ void AbstractNodeActive::_stream(Lattice& lat, const unsigned i,
 //! \TODO should we do bounds checking here?
 //! \TODO should we unroll this loop?
 //! \TODO should this be multithreaded?
-void AbstractNodeActive::_stream_with_bcheck(Lattice& lat, const unsigned i, 
+void AbstractNodeActive::stream_with_bcheck_(Lattice& lat, const unsigned i, 
                                              const unsigned j) const
 {
   const unsigned nk = lat.num_k();
@@ -111,7 +111,7 @@ void AbstractNodeActive::_stream_with_bcheck(Lattice& lat, const unsigned i,
       throw std::out_of_range (oss.str());
     }
 
-    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
+    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
   }
 }
 

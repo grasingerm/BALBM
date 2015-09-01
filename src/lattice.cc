@@ -26,26 +26,27 @@ namespace d2q9
 {
 
 //! \var static class member lat_vecs Lattice vectors for 
-const double Lattice::lat_vecs[9][2] = { {   0.0,    0.0   },
+const double Lattice::lat_vecs_[9][2] = { {   0.0,    0.0   },
                                        {   1.0,    0.0   }, {   0.0,    1.0   },
                                        {  -1.0,    0.0   }, {   0.0,   -1.0   },
                                        {   1.0,    1.0   }, {  -1.0,    1.0   },
                                        {  -1.0,   -1.0   }, {   1.0,   -1.0   }
                                      };
 
-const double Lattice::_dx = 1.0;
-const double Lattice::_dt = 1.0;
+const double Lattice::dx_ = 1.0;
+const double Lattice::dt_ = 1.0;
 
 //! Copy constructor for  lattice
 //!
 //! \param lat Lattice to copy
 //! \return Copied lattice
 Lattice::Lattice(const Lattice& lat) 
-  : nx(lat.nx), ny(lat.ny), f(new double[nx * ny * num_k()]),
-    ftemp(new double[nx * ny * num_k()]), node_descs(lat.node_descs)
+  : nx_(lat.num_x()), ny_(lat.num_y()), spf_(new double[nx_ * ny_ * num_k()]),
+    spftemp_(new double[nx_ * ny_ * num_k()]), node_descs_(lat.node_descs())
 {
-  std::copy(&lat.f[0], &lat.f[nx * ny * num_k() - 1], &f[0]);
-  std::copy(&lat.ftemp[0], &lat.ftemp[nx * ny * num_k() - 1], &ftemp[0]);
+  std::copy(&lat.spf_[0], &lat.spf_[nx * ny * num_k() - 1], &spf_[0]);
+  std::copy(&lat.spftemp_[0], &lat.spftemp_[nx * ny * num_k() - 1], 
+            &spftemp_[0]);
 }
 
 //! Assignment for  lattice
@@ -53,21 +54,21 @@ Lattice::Lattice(const Lattice& lat)
 //! \param lat Lattice to assign
 //! \return Copied lattice
 Lattice& Lattice::operator=(const Lattice& lat) 
-  : nx(lat.nx), ny(lat.ny), f(new double[nx * ny * num_k()]),
-    ftemp(new double[nx * ny * num_k()]), node_descs(lat.node_descs)
 {
   if (this == &lat) return *this;
 
-  if (f.nx * f.ny > nx * ny)
+  if (lat.num_x() * lat.num_y() > nx_ * ny_)
   {
-    f = std::make_unique(new double[nx * ny * num_k()]);
-    ftemp = std::make_unique(new double[nx * ny * num_k()]);
+    //TODO: consider writing an iterator for the lattice class
+    spf_.reset(new double[lat.num_x() * lat.num_y() * num_k()]);
+    spftemp_.reset(new double[lat.num_x() * lat.num_y() * num_k()]);
   }
 
-  nx = lat.nx;
-  ny = lat.ny;
-  std::copy(&lat.f[0], &lat.f[nx * ny * num_k() - 1], &f[0]);
-  std::copy(&lat.ftemp[0], &lat.ftemp[nx * ny * num_k() - 1], &ftemp[0]);
+  nx_ = lat.num_x();
+  ny_ = lat.num_y();
+  std::copy(&lat.spf_[0], &lat.spf_[nx * ny * num_k() - 1], &spf_[0]);
+  std::copy(&lat.spftemp_[0], &lat.spftemp_[nx * ny * num_k() - 1], 
+            &spftemp_[0]);
 
   return *this;
 }
@@ -77,11 +78,12 @@ Lattice& Lattice::operator=(const Lattice& lat)
 //! \param lat Lattice to be moved
 //! \return Moved lattice
 Lattice::Lattice(Lattice&& lat)
-  : nx(lat.nx), ny(lat.ny), f(std::move(lat.f)), ftemp(std::move(lat.ftemp)), 
-    node_descs(std::move(lat.node_descs))
+  : nx_(lat.nx_), ny_(lat.ny_), spf_(std::move(lat.spf_)), 
+    spftemp_(std::move(lat.spftemp_)), 
+    node_descs_(std::move(lat.node_descs_))
 {
-  lat.f.reset(nullptr);
-  lat.ftemp.reset(nullptr);
+  lat.spf_.reset(nullptr);
+  lat.spftemp_.reset(nullptr);
 }
 
 //! Move assignment operator
@@ -90,11 +92,11 @@ Lattice::Lattice(Lattice&& lat)
 //! \return Moved lattice
 Lattice& Lattice::operator=(Lattice&& lat)
 {
-  nx = lat.nx;
-  ny = lat.ny;
-  f = std::move(lat.f);
-  ftemp = std::move(lat.ftemp);
-  node_descs = std::move(lat.node_descs);
+  nx_ = lat.num_x();
+  ny_ = lat.num_y();
+  spf_ = std::move(lat.spf_);
+  spftemp_ = std::move(lat.spftemp_);
+  node_descs_ = std::move(lat.node_descs_);
 
   lat.f.reset(nullptr);
   lat.ftemp.reset(nullptr);

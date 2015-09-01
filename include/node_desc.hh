@@ -39,11 +39,11 @@ public:
                                 const unsigned, const unsigned) const noexcept;
   virtual ~NodeDesc()=0;
 private:
-  virtual void _stream(Lattice&, const unsigned, const unsigned) const
+  virtual void stream_(Lattice&, const unsigned, const unsigned) const
                        noexcept=0;
-  virtual void _stream_with_bcheck(Lattice&, const unsigned, 
+  virtual void stream_with_bcheck_(Lattice&, const unsigned, 
                                    const unsigned) const=0;
-  virtual void _collide_and_bound(Lattice&, const CollisionManager&,
+  virtual void collide_and_bound_(Lattice&, const CollisionManager&,
                                   const unsigned, const unsigned) 
                                   const noexcept=0;
 };
@@ -57,11 +57,11 @@ class NodeInactive : public AbstractNodeDesc
 public:
   ~NodeInactive() {}
 private:
-  virtual void _stream(Lattice&, const unsigned, const unsigned) const
+  virtual void stream_(Lattice&, const unsigned, const unsigned) const
                        noexcept {}
-  virtual void _stream_with_bcheck(Lattice&, const unsigned, 
+  virtual void stream_with_bcheck_(Lattice&, const unsigned, 
                                    const unsigned) const {}
-  virtual void _collide_and_bound(Lattice&, const CollisionManager&,
+  virtual void collide_and_bound_(Lattice&, const CollisionManager&,
                                   const unsigned, const unsigned) 
                                   const noexcept {};
 };
@@ -77,10 +77,10 @@ class AbstractNodeActive : public AbstractNodeDesc
 public:
   virtual ~NodeActive()=0;
 private:
-  virtual void _stream(Lattice&, const unsigned, const unsigned) const noexcept;
-  virtual void _stream_with_bcheck(Lattice&, const unsigned, 
-                           const unsigned) const;
-  virtual void _collide_and_bound(Lattice&, const CollisionManager&,
+  virtual void stream_(Lattice&, const unsigned, const unsigned) const noexcept;
+  virtual void stream_with_bcheck_(Lattice&, const unsigned, 
+                                   const unsigned) const;
+  virtual void collide_and_bound_(Lattice&, const CollisionManager&,
                           const unsigned, const unsigned) const noexcept;
 };
 
@@ -105,10 +105,10 @@ class NodeWestFacingWall : public AbstractNodeActive
 public:
   ~NodeWestFacingWall() {}
 private:
-  void _stream(Lattice&, const unsigned, const unsigned) const;
-  void _stream_with_bcheck(Lattice&, const unsigned, 
+  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void _collide_and_bound(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, const CollisionManager&,
                           const unsigned, const unsigned) const;
 };
 
@@ -122,10 +122,10 @@ class NodeSouthFacingWall : public AbstractNodeActive
 public:
   ~NodeSouthFacingWall() {}
 private:
-  void _stream(Lattice&, const unsigned, const unsigned) const;
-  void _stream_with_bcheck(Lattice&, const unsigned, 
+  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void _collide_and_bound(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, const CollisionManager&,
                           const unsigned, const unsigned) const;
 };
 
@@ -139,10 +139,10 @@ class NodeEastFacingWall : public AbstractNodeActive
 public:
   ~NodeEastFacingWall() {}
 private:
-  void _stream(Lattice&, const unsigned, const unsigned) const;
-  void _stream_with_bcheck(Lattice&, const unsigned, 
+  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void _collide_and_bound(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, const CollisionManager&,
                           const unsigned, const unsigned) const;
 };
 
@@ -156,10 +156,10 @@ class NodeNorthFacingWall : public AbstractNodeActive
 public:
   ~NodeNorthFacingWall() {}
 private:
-  void _stream(Lattice&, const unsigned, const unsigned) const;
-  void _stream_with_bcheck(Lattice&, const unsigned, 
+  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void _collide_and_bound(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, const CollisionManager&,
                           const unsigned, const unsigned) const;
 };
 
