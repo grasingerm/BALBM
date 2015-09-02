@@ -18,19 +18,29 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "balbm_config.hh"
+#include "lattice.hh"
 
 namespace balbm
 {
 
 namespace d2q9
 {
-//! \class AbstractNodeDesc
+
+//! \class AbstractCollisionManager
 //!
-//! \brief Abstract base class for  node descriptors
+//! \brief Abstract base class for collision managers
 //!
-//! Provide polymorphic behavior for each node in the lattice based on its
-//! physical "status" as a node, e.g. change behavior of streaming and collision
-//! steps in order to simulate appropriate physics and boundary conditions
+//! Wrapper class for combining behavior from a constitutive relationship,
+//! a solver, and external forces to perform an LBM collision
+class AbstractCollisionManager
+{
+public:
+  virtual ~AbstractCollisionManager()=0;
+  void collide(Lattice& lat, AbstractMultiscaleMap& mmap) const
+    { return collide_(lat, mmp); }
+private:
+  virtual void collide_(Lattice&, AbstractMultiscaleMap&) const=0;
+};
 
 } // namespace d2q9
 

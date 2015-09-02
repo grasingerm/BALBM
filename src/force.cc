@@ -24,7 +24,7 @@ namespace d2q9
 {
 
 //! Virtual destructor for AbstractForce base class
-~AbstractForce() {}
+AbstractForce::~AbstractForce() {}
 
 //! Transforms macroscopic velocity vector to simulate external forces
 //!

@@ -14,7 +14,7 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#include "constitutive.hh"
+#include "collision_manager.hh"
 
 namespace balbm
 {
@@ -22,22 +22,9 @@ namespace balbm
 namespace d2q9
 {
 
-//! Virtual destructor definition
-AbstractConstitutiveEq::~AbstractConstitutiveEq() {}
+//! Virtual destructor
+AbstractCollisionManager::~AbstractCollisionManager() {}
 
-//! Constitutive equation for a Newtonian fluid
-//!
-//! \param lat Lattice
-//! \param mmap Multiscale map of macroscopic variables
-//! \param fneq Non-equilibrium particle distribution
-//! \param i Index in x-direction
-//! \param j Index in y-direction
-//! \return Kinematic viscosity
-double NewtonianConstitutiveEq::mu_
-  (const Lattice& lat, const AbstractMultiscaleMap& mmap, const arma::vec& fneq,
-   const unsigned i, const unsigned j)
-{ return cmu_; }
+} // namespace d2q9
 
-} // d2q9
-
-} // balbm
+} // namespace balbm
