@@ -1,5 +1,5 @@
-#ifndef __EQUILIBRIUM_HH__
-#define __EQUILIBRIUM_HH__
+#ifndef EQUILIBRIUM_HH
+#define EQUILIBRIUM_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -23,6 +23,7 @@ namespace balbm
 namespace d2q9
 {
 
+/* TODO: does it make sense to have a base class for all equilibrium equations?
 //! \class AbstractEqFunct
 //!
 //! \brief Abstract class for equilibrium distribution function
@@ -39,6 +40,25 @@ private:
   virtual double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
                           const unsigned k)=0;
 };
+*/
+
+//! \class AbstractIncompFlowEqFunct
+//!
+//! \brief Base equilibrium distribution function for incompressible flow
+//!
+//! Defines functor for calculating a local equilibrium distribution function
+//! for simulating incompressible flow
+class AbstractIncompFlowEqFunct
+{
+public:
+  virtual ~AbstractIncompFlowEqFunct()=0;
+  inline double f(const Lattice& lat, const double rho, const arma::vec& u,
+                  const unsigned k) const
+    { return f_(lat, rho, u, k); }
+private:
+  virtual double f_(const Lattice& lat, const double rho, const arma::vec& u,
+                   const unsigned k) const=0;
+};
 
 //! \class IncompFlowEqFunct
 //!
@@ -46,13 +66,13 @@ private:
 //!
 //! Defines functor for calculating a local equilibrium distribution function
 //! for simulating incompressible flow
-class IncompFlowEqFunct : public AbstractEqFunct
+class IncompFlowEqFunct : public AbstractIncompFlowEqFunct
 {
 public:
   ~IncompFlowEqFunct() {}
 private:
-  double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
-                  const unsigned k);
+  double f_(const Lattice& lat, const double rho, const arma::vec& u,
+            const unsigned k) const;
 };
 
 //! \class IncompFlowHLEqFunct
@@ -61,19 +81,19 @@ private:
 //!
 //! Defines functor for calculating a local He and Lou equilibrium distribution 
 //! function for simulating incompressible flow. Used for numerical stability.
-class IncompFlowHLEqFunct : public AbstractEqFunct
+class IncompFlowHLEqFunct : public AbstractIncompFlowEqFunct
 {
 public:
   ~IncompFlowHLEqFunct() {}
   IncompFlowHLEqFunct(unsigned rho_o) : rho_o_(rho_o) {}
 private:
   double rho_o_;
-  double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
-                  const unsigned k);
+  double f_(const Lattice& lat, const double rho, const arma::vec& u,
+            const unsigned k) const=0;
 };
 
 } // namespace d2q9
 
 } // namespace balbm
 
-#endif // __EQUILIBRIUM_HH__
+#endif // EQUILIBRIUM_HH

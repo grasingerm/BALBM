@@ -1,5 +1,5 @@
-#ifndef __EQUILIBRIUM_HH__
-#define __EQUILIBRIUM_HH__
+#ifndef COLLISION_MANAGER_HH
+#define COLLISION_MANAGER_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -17,31 +17,23 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+#include "balbm_config.hh"
+
 namespace balbm
 {
 
 namespace d2q9
 {
-
-//! \class AbstractEqFunct
+//! \class AbstractNodeDesc
 //!
-//! \brief Abstract class for equilibrium distribution function
+//! \brief Abstract base class for  node descriptors
 //!
-//! Defines functor for calculating a local equilibrium distribution function
-class AbstractEqFunct
-{
-public:
-  virtual ~AbstractEqFunct()=0;
-  inline double f const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
-                        const unsigned k)
-    { return f_(lat, mmap, k); }
-private:
-  virtual double f_ const(const Lattice& lat, const AbstractMultiscaleMap& mmap,
-                          const unsigned k)=0;
-};
+//! Provide polymorphic behavior for each node in the lattice based on its
+//! physical "status" as a node, e.g. change behavior of streaming and collision
+//! steps in order to simulate appropriate physics and boundary conditions
 
 } // namespace d2q9
 
 } // namespace balbm
 
-#endif // __EQUILIBRIUM_HH__
+#endif // COLLISION_MANAGER_HH

@@ -25,13 +25,18 @@ namespace balbm
 namespace d2q9
 {
 
-//! \var static class member lat_vecs Lattice vectors for 
+//! \var static class member lat_vecs Vectors for each lattice direction
 const double Lattice::lat_vecs_[9][2] = { {   0.0,    0.0   },
                                        {   1.0,    0.0   }, {   0.0,    1.0   },
                                        {  -1.0,    0.0   }, {   0.0,   -1.0   },
                                        {   1.0,    1.0   }, {  -1.0,    1.0   },
                                        {  -1.0,   -1.0   }, {   1.0,   -1.0   }
                                      };
+
+//! \var static class member w_ Weights for each lattice direction
+const double Lattice::w_ = { 4./9.,
+                             1./9.,  1./9.,  1./9.,  1./9.,
+                             1./36., 1./36., 1./36., 1./36. };
 
 const double Lattice::dx_ = 1.0;
 const double Lattice::dt_ = 1.0;

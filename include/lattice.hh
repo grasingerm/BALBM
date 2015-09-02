@@ -1,5 +1,5 @@
-#ifndef __LATTICE_HH__
-#define __LATTICE_HH__
+#ifndef LATTICE_HH
+#define LATTICE_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -78,13 +78,15 @@ public:
   inline double ftemp(unsigned i, unsigned j, unsigned k) const noexcept 
                                                 { return ftemp_(i, j, k); }
   inline const std::vector<std::unique_ptr<NodeDesc>>& node_descs ()
-    const noexcept                            { return node_descs_; }
+    const noexcept                              { return node_descs_; }
   inline const NodeDesc& node_desc(const unsigned i, const unsigned j) const
     { return *(node_descs_[nx_ * i + j]); }
-  inline const double* pk(const unsigned k) const noexcept 
-    { return (&lat_vecs_[2 * k]); }
-  inline double k(const unsigned k, const unsigned c) const noexcept 
-    { return *(pk(k) + c); }
+  inline const double* pc(const unsigned k) const noexcept 
+                                                { return (&lat_vecs_[2 * k]); }
+  inline double c(const unsigned k, const unsigned c) const noexcept 
+                                                { return *(pc(k) + c); }
+  inline double w(const unsigned k) const noexcept
+                                                { return w_[k]; }
     
   // mutators
     // stream
@@ -115,6 +117,7 @@ public:
 
 private:
   static const double[9][2] lat_vecs_;
+  static const double[9] w_;
   static const double dx_;
   static const double dt_;
   const unsigned nx_;

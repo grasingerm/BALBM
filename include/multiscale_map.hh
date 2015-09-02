@@ -1,5 +1,5 @@
-#ifndef __MULTISCALE_MAP_HH__
-#define __MULTISCALE_MAP_HH__
+#ifndef MULTISCALE_MAP_HH
+#define MULTISCALE_MAP_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -85,4 +85,4 @@ private:
 
 } // namespace balbm
 
-#endif //__MULTISCALE_MAP_HH__
+#endif //MULTISCALE_MAP_HH

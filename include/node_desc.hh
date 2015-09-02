@@ -1,5 +1,5 @@
-#ifndef __NODE_DESC_HH__
-#define __NODE_DESC_HH__
+#ifndef NODE_DESC_HH
+#define NODE_DESC_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -167,4 +167,4 @@ private:
 
 } // namespace balbm
 
-#endif // __NODE_DESC_HH__
+#endif // NODE_DESC_HH

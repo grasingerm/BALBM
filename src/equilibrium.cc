@@ -14,6 +14,7 @@
 // A copy of the GNU General Public License is at the root directory of
 
 #include "equilibrium.hh"
+#include <armadillo>
 
 namespace balbm
 {
@@ -22,17 +23,44 @@ namespace d2q9
 {
 
 //! Virtual destructor definition
-AbstractEqFunct::~AbstractEqFunct() {}
+AbstractIncompEqFunct::~AbstractIncompEqFunct() {}
 
 //! Equilibrium distribution function for incompressible flow
 //!
-//! \param
-double IncompFlowEqFunct::f_ const(const Lattice& lat, 
-                                   const AbstractMultiscaleMap& abmmap,
-                                   const unsigned k)
+//! \param lat Lattice
+//! \param rho Density at the lattice node
+//! \param u Macroscopic velocity vector
+//! \param k Index of lattice direction
+//! \return Equilibrium particle distribution
+double IncompFlowEqFunct::f_ (const Lattice& lat, const double rho, 
+                              const arma::vec& u, const unsigned k) const
 {
-  auto inmmap = dynamic_cast<const IncompFlowMultiscaleMap&>(abmmap);
-  double k_dot_u = lat.k(k, 0) * inmmap.u
+  const arma::vec ck(lat.pc(k), 2, false, true); 
+  const double ckdotu = arma::dot(ck, u);
+  const double cssq = lat.cssq();
+
+  return rho * lat.w(k) * (1.0 + ckdotu/cssq + 0.5*(ckdotu*ckdotu)/(cssq*cssq)
+                           - 0.5 * dot(u, u) / cssq);
+}
+
+//! Equilibrium distribution function for incompressible flow
+//!
+//! \param lat Lattice
+//! \param rho Density at the lattice node
+//! \param u Macroscopic velocity vector
+//! \param k Index of lattice direction
+//! \return Equilibrium particle distribution
+double IncompFlowHLEqFunct::f_ (const Lattice& lat, const double rho, 
+                                const arma::vec& u, const unsigned k) const
+{
+  const arma::vec ck(lat.pc(k), 2, false, true); 
+  const double ckdotu = arma::dot(ck, u);
+  const double cssq = lat.cssq();
+
+  return (lat.w(k) * (rho + rho_o_ + (ckdotu/cssq
+                                      + 0.5*(ckdotu*ckdotu)/(cssq*cssq)
+                                      - 0.5 * dot(u, u) / cssq)
+                     ));
 }
 
 }
