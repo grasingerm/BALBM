@@ -18,13 +18,17 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "balbm_config.hh"
+#include "constitutive.hh"
 #include "lattice.hh"
+#include <memory>
 
 namespace balbm
 {
 
 namespace d2q9
 {
+
+// TODO: consider making better use of return value optimization
 
 //! \class AbstractCollisionManager
 //!
@@ -36,10 +40,38 @@ class AbstractCollisionManager
 {
 public:
   virtual ~AbstractCollisionManager()=0;
-  void collide(Lattice& lat, AbstractMultiscaleMap& mmap) const
-    { return collide_(lat, mmp); }
+  inline void collide(Lattice& lat, AbstractMultiscaleMap& mmap, 
+                      const unsigned i, const unsigned j) const
+    { return collide_(lat, mmp, i, j); }
 private:
-  virtual void collide_(Lattice&, AbstractMultiscaleMap&) const=0;
+  virtual void collide_(Lattice&, AbstractMultiscaleMap&, unsigned, unsigned) 
+    const=0;
+};
+
+//! \class IncompFlowCollisionManager
+//!
+//! \brief Collision manager for incompressible flow
+class IncompFlowCollisionManager : public AbstractCollisionManager
+{
+public:
+  ~IncompFlowCollisionManager() {}
+  IncompFlowCollisionManager
+    (const AbstractIncompFlowEqFnct* aef, const AbstractConsitutiveEq* ace)
+    : pfeq_(std::unique_ptr<AbstractIncompFlowEqFnct>(aef)), 
+      pconstiteq_(std::unique_ptr<AbstractConstitutiveEq>(ace)), 
+      pextforce_(nullptr) {}
+  IncompFlowCollisionManager
+    (const AbstractIncompFlowEqFnct* aef, const AbstractConsitutiveEq* ace, 
+     const AbstractForce* af)
+    : pfeq_(std::unique_ptr<AbstractIncompFlowEqFnct>(aef)), 
+      pconstiteq_(std::unique_ptr<AbstractConstitutiveEq>(ace)), 
+      pextforce_(std::unique_ptr<AbstractForce>(af)) {} 
+private:
+  void collide_(Lattice&, AbstractMultiscaleMap&, const unsigned, 
+                const unsigned) const;
+  std::unique_ptr<AbstractEquilibriumFnct> pfeq_;
+  std::unique_ptr<AbstractConstitutiveEq> pconstiteq_;
+  std::unique_ptr<AbstractForce> pextforce_; 
 };
 
 } // namespace d2q9

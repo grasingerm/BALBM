@@ -17,14 +17,32 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#include <memory>
 #include "lattice.hh"
+#include <memory>
 
 namespace balbm
 {
 
 namespace d2q9
 {
+
+//! Convert visocisty to relaxation time
+//!
+//! \param mu Kinematic viscosity
+//! \param cssq Speed of sound squared
+//! \param dt Length of time step
+//! \return Relaxation time
+inline double mu_to_relax(const double mu, const double cssq, const double dt)
+  { return mu / (cssq*dt) + 0.5; }
+
+//! Convert visocisty to collision frequency
+//!
+//! \param mu Kinematic viscosity
+//! \param cssq Speed of sound squared
+//! \param dt Length of time step
+//! \return Collision frequency
+inline double mu_to_omega(const double mu, const double cssq, const double dt)
+  { return 1.0 / mu_to_relax(mu, cssq, dt); }
 
 //! \class AbstractMultiscaleMap
 //!
@@ -66,19 +84,34 @@ public:
   ~DensityMultiscaleMap() {}
 };
 
+//! \class IncompFlowMultiscaleMap
+//!
+//! \brief Maps particle distributions to local macroscopic flow variables
+//!
+//! Concrete class for incompressible flow multiscale map. Maps particle
+//! distributions to local macroscopic density, flow, and collision frequency
 class IncompFlowMultiscaleMap : public AbstractMultiscaleMap
 {
 public:
   IncompFlowMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : AbstractMultiscaleMap(nx, ny) {}
+    : AbstractMultiscaleMap(nx, ny), 
+      spu_(std::unique_ptr<double[]>(new double[nx * ny * 2])),
+      spomega_(std::unique_ptr<double[]>(new double[nx * ny])) {}
   ~IncompFlowMultiscaleMap() {}
   inline double u(const unsigned i, const unsigned j, const unsigned c) const 
-    { return spu_[2 * (i * nx_ + j) + c]; }
+    { return spu_[2 * (i * num_x() + j) + c]; }
+  inline const double pu(const unsigned i, const unsigned j, const unsigned c) const 
+    { return spu_[2 * (i * num_x() + j) + c]; }
+  inline double& omega(const unsigned i, const unsigned j)
+    { return spomega_[i * num_x() + j]; }
+  inline double omega(const unsigned i, const unsigned j) const
+    { return spomega_[i * num_x() + j]; }
 private:
-  inline double& _u(const unsigned i, const unsigned j, const unsigned c)
-    { return spu_[2 * (i * nx_ + j) + c]; }
+  inline double& u_(const unsigned i, const unsigned j, const unsigned c)
+    { return spu_[2 * (i * num_x() + j) + c]; }
   void map_to_macro_(const Lattice&, const unsigned, const unsigned);
   std::unique_ptr<double[]> spu_;
+  std::unique_ptr<double[]> spomega_;
 };
 
 } // namespace d2q9

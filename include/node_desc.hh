@@ -75,8 +75,8 @@ private:
 class AbstractNodeActive : public AbstractNodeDesc
 {
 public:
-  virtual ~NodeActive()=0;
-private:
+  virtual ~AbstractNodeActive()=0;
+protected:
   virtual void stream_(Lattice&, const unsigned, const unsigned) const noexcept;
   virtual void stream_with_bcheck_(Lattice&, const unsigned, 
                                    const unsigned) const;

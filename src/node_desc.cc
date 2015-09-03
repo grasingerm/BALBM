@@ -115,11 +115,18 @@ void AbstractNodeActive::stream_with_bcheck_(Lattice& lat, const unsigned i,
   }
 }
 
-void AbstractNodeActive::_collide_and_bound
-  (Lattice& lat, const CollisionManager& cman, const MultiscaleMap& mmap, 
-   const unsigned i, const unsigned j) const
+//! Default implementation of collide and bound for an active node
+//!
+//! \param lat Lattice
+//! \param cman Collision manager
+//! \param mmap Multiscale map
+//! \param i Index in the x-direction
+//! \param j Index in the y-direction
+void AbstractNodeActive::collide_and_bound_
+  (Lattice& lat, const AbstractCollisionManager& cman, 
+   MultiscaleMap& mmap, const unsigned i, const unsigned j) const
 {
-  // code for collisions
+  cman.collide(lat, mmap, i, j);
 }
 
 }

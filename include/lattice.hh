@@ -17,12 +17,14 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+// TODO: consider using a different data structure for 2D and 3D arrays
+
+#include "balbm_config.hh"
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <memory>
 #include <vector>
-#include "balbm_config.hh"
 
 namespace balbm
 {

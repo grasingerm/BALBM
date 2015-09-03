@@ -17,9 +17,9 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#include <armadillo>
 #include "balbm_config.hh"
 #include "lattice.hh"
+#include <armadillo>
 
 namespace balbm
 {
