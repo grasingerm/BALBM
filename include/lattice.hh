@@ -56,7 +56,7 @@ public:
   Lattice(unsigned nx, unsigned ny) : nx_(nx), ny_(ny),
     f_(std::make_unique(new double[nx * ny * num_k()])), 
     ftemp_(std::make_unique(new double[nx * ny * num_k()])),
-    node_descs_(std::vector<std::unique_ptr<NodeDesc>>(nx * ny * num_k())) {}
+    node_descs_(std::vector<NodeDesc*>(nx * ny)) {}
   Lattice(const Lattice&);
   Lattice& operator=(const Lattice&);
   Lattice(Lattice&&);
@@ -126,7 +126,7 @@ private:
   const unsigned ny_;
   std::unique_ptr<double[]> spf_;
   std::unique_ptr<double[]> spftemp_;
-  std::vector<std::unique_ptr<NodeDesc>> node_descs_;
+  std::vector<NodeDesc*> node_descs_;
 
   // lattice vectors and particle distribution functions
   inline double* pf_(const unsigned i, const unsigned j) 

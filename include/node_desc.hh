@@ -18,6 +18,7 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "balbm_config.hh"
+#include <algorithm>
 
 namespace balbm
 {
@@ -162,6 +163,15 @@ private:
   void collide_and_bound_(Lattice&, const CollisionManager&,
                           const unsigned, const unsigned) const;
 };
+
+//! Constant expression for maximum node descriptor size
+//!
+//! \return Maximum node descriptor size
+constexpr std::size_t max_node_desc_size()
+{
+  return std::max({NodeActive, NodeWestFacingWall, NodeSouthFacingWall,
+                   NodeEastFacingWall, NodeNorthFacingWall});
+}
 
 } // namespace d2q9
 
