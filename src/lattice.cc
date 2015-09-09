@@ -118,6 +118,20 @@ void stream(const std::vector<std::array<unsigned, 4>>& bounds)
     stream(row[0], row[1], row[2], row[3]);
 }
 
+//! Initialize domain to equilibrium based on a reference density
+//!
+//! \param rho Reference density
+void Lattice::init_f_(const double rho)
+{
+  const unsigned nx = num_x();
+  const unsigned ny = num_y();
+
+  for (unsigned i = 0; i < nx; ++i)
+    for (unsigned j = 0; j < ny; ++j)
+      for (unsigned k = 0; k < 9; ++k)
+        f_(i, j, k) = w(k) * rho;
+}
+
 } // namespace d2q9
 
 } // namespace balbm

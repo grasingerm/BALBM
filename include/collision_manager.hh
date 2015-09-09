@@ -29,6 +29,8 @@ namespace d2q9
 {
 
 // TODO: consider making better use of return value optimization
+// TODO: all customizability may come from composition. 
+//       Do we even need inheritance here?
 
 //! \class AbstractCollisionManager
 //!
@@ -51,7 +53,7 @@ private:
 //! \class IncompFlowCollisionManager
 //!
 //! \brief Collision manager for incompressible flow
-class IncompFlowCollisionManager : public AbstractCollisionManager
+class IncompFlowCollisionManager
 {
 public:
   ~IncompFlowCollisionManager() {}
@@ -66,9 +68,9 @@ public:
     : pfeq_(std::unique_ptr<AbstractIncompFlowEqFnct>(aef)), 
       pconstiteq_(std::unique_ptr<AbstractConstitutiveEq>(ace)), 
       pextforce_(std::unique_ptr<AbstractForce>(af)) {} 
-private:
-  void collide_(Lattice&, AbstractMultiscaleMap&, const unsigned, 
+  void collide_(Lattice&, IncompFlowMultiscaleMap&, const unsigned, 
                 const unsigned) const;
+private:
   std::unique_ptr<AbstractEquilibriumFnct> pfeq_;
   std::unique_ptr<AbstractConstitutiveEq> pconstiteq_;
   std::unique_ptr<AbstractForce> pextforce_; 

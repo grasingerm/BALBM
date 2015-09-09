@@ -42,6 +42,8 @@ private:
 };
 */
 
+//TODO: if we start implementing other lattices then "f" should be a function template/overloaded?
+
 //! \class AbstractIncompFlowEqFunct
 //!
 //! \brief Base equilibrium distribution function for incompressible flow

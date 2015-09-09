@@ -53,16 +53,16 @@ class AbstractMultiscaleMap
 {
 public:
   AbstractMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : nx_(nx), ny_(ny), rho_(std::unique_ptr<double[]>(new double[nx * ny])) {}
+    : ni_(ni), nj_(nj), rho_(std::unique_ptr<double[]>(new double[nx * ny])) {}
   virtual ~AbstractMultiscaleMap()=0;
-  inline double num_x() const noexcept { return nx_; }
-  inline double num_y() const noexcept { return ny_; }
+  inline double num_i() const noexcept { return ni_; }
+  inline double num_j() const noexcept { return nj_; }
   inline double rho(const unsigned i, const unsigned j) const 
-    { return sprho_[i * nx_ + j]; }
+    { return sprho_[i * num_j() + j]; }
   inline void map_to_macro(const Lattice& lat) { map_to_macro_(lat); }
 protected:
   inline double& rho_(const unsigned i, const unsigned j) 
-    { return sprho_[i * nx_ + j]; }
+    { return sprho_[i * num_j() + j]; }
   virtual void map_to_macro_(const Lattice&);
   virtual void map_to_macro_(const Lattice&, const unsigned, const unsigned);
 private:
@@ -79,8 +79,8 @@ private:
 class DensityMultiscaleMap : public AbstractMultiscaleMap
 {
 public:
-  DensityMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : AbstractMultiscaleMap(nx, ny) {}
+  DensityMultiscaleMap(const unsigned ni, const unsigned nj) 
+    : AbstractMultiscaleMap(ni, nj) {}
   ~DensityMultiscaleMap() {}
 };
 
@@ -93,23 +93,26 @@ public:
 class IncompFlowMultiscaleMap : public AbstractMultiscaleMap
 {
 public:
-  IncompFlowMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : AbstractMultiscaleMap(nx, ny), 
-      spu_(std::unique_ptr<double[]>(new double[nx * ny * 2])),
-      spomega_(std::unique_ptr<double[]>(new double[nx * ny])) {}
+  IncompFlowMultiscaleMap
+    (const unsigned ni, const unsigned nj, const double omega) 
+    : AbstractMultiscaleMap(ni, nj), 
+      spu_(std::unique_ptr<double[]>(new double[ni * nj * 2])),
+      spomega_(std::unique_ptr<double[]>(new double[ni * nj])) 
+      { init_(omega) }
   ~IncompFlowMultiscaleMap() {}
   inline double u(const unsigned i, const unsigned j, const unsigned c) const 
-    { return spu_[2 * (i * num_x() + j) + c]; }
-  inline const double pu(const unsigned i, const unsigned j, const unsigned c) const 
-    { return spu_[2 * (i * num_x() + j) + c]; }
+    { return spu_[2 * (i * num_j() + j) + c]; }
+  inline const double* pu(const unsigned i, const unsigned j) const 
+    { return &spu_[2 * (i * num_j() + j)]; }
   inline double& omega(const unsigned i, const unsigned j)
-    { return spomega_[i * num_x() + j]; }
+    { return spomega_[i * num_j() + j]; }
   inline double omega(const unsigned i, const unsigned j) const
-    { return spomega_[i * num_x() + j]; }
+    { return spomega_[i * num_j() + j]; }
 private:
   inline double& u_(const unsigned i, const unsigned j, const unsigned c)
-    { return spu_[2 * (i * num_x() + j) + c]; }
+    { return spu_[2 * (i * num_j() + j) + c]; }
   void map_to_macro_(const Lattice&, const unsigned, const unsigned);
+  void init_();
   std::unique_ptr<double[]> spu_;
   std::unique_ptr<double[]> spomega_;
 };

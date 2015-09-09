@@ -71,6 +71,23 @@ void IncompFlowMultiscaleMap::map_to_macro_
   }
 }
 
+//! Initialize values in the multiscale map
+//!
+//! \param omega Initial collision frequency
+void IncompFlowMultiscaleMap::init_(const double omega)
+{
+  const unsigned nx = num_x();
+  const unsigned ny = num_y();
+
+  for (unsigned i = 0; i < nx; ++i)
+    for (unsigned j = 0; j < ny; ++j)
+    {
+      this->u_(i, j, 0) = 0.0;
+      this->u_(i, j, 1) = 0.0;
+      this->omega(i, j) = omega;
+    }
+}
+
 } // namespace d2q9
 
 } // namespace balbm
