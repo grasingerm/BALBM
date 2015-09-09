@@ -20,6 +20,7 @@
 // TODO: consider using a different data structure for 2D and 3D arrays
 
 #include "balbm_config.hh"
+#include "helpers/mem_helpers.hh"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -52,16 +53,22 @@ class Lattice
 public:
   // constructors and assignment
   // TODO: make more constructors, initializers, and factories
-  Lattice() : nx_(0), ny_(0), f_(nullptr), ftemp_(nullptr) {}
-  Lattice(unsigned nx, unsigned ny) : nx_(nx), ny_(ny),
-    f_(std::make_unique(new double[nx * ny * num_k()])), 
-    ftemp_(std::make_unique(new double[nx * ny * num_k()])),
-    node_descs_(std::vector<NodeDesc*>(nx * ny)) {}
+  Lattice() : ni_(0), nj_(0), f_(nullptr), ftemp_(nullptr) {}
+  Lattice(const unsigned ni, const unsigned nj, const double rho = 1.0) 
+    : nx_(ni), ny_(nj),
+      f_(std::make_unique(new double[ni * nj * num_k()])), 
+      ftemp_(std::make_unique(new double[ni * nj * num_k()])),
+      node_descs_(std::vector<NodeDesc*>(ni * nj)),
+      mem_pool_(SimpleMemPool(max_node_desc_size() * ni * nj))
+    { init_f_(rho); }
   Lattice(const Lattice&);
   Lattice& operator=(const Lattice&);
   Lattice(Lattice&&);
   Lattice& operator=(Lattice&&);
-  ~Lattice() {}
+  ~Lattice() 
+  { 
+    try for (auto& node_desc : node_descs_) node_desc->::~NodeDesc(); catch; 
+  }
 
   // accessors
     // static and constant expression values
@@ -70,8 +77,8 @@ public:
   static constexpr double c() const             { return dx_ / dt_; }
   static constexpr double cs() const            { return c() / sqrt(3.0); }
   static constexpr double cssq() const          { return cs() * cs(); }
-  inline unsigned num_x() const                 { return nx_; }
-  inline unsigned num_y() const                 { return ny_; }
+  inline unsigned num_i() const                 { return ni_; }
+  inline unsigned num_j() const                 { return nj_; }
   static constexpr unsigned num_k() const       { return 9; }
   inline const double* pf() const noexcept      { return spf_.get(); }
   inline double f(unsigned i, unsigned j, unsigned k) const noexcept     
@@ -82,7 +89,7 @@ public:
   inline const std::vector<std::unique_ptr<NodeDesc>>& node_descs ()
     const noexcept                              { return node_descs_; }
   inline const NodeDesc& node_desc(const unsigned i, const unsigned j) const
-    { return *(node_descs_[nx_ * i + j]); }
+    { return *(node_descs_[nj_ * i + j]); }
   inline const double* pc(const unsigned k) const noexcept 
                                                 { return (&lat_vecs_[2 * k]); }
   inline double c(const unsigned k, const unsigned c) const noexcept 
@@ -101,7 +108,7 @@ public:
         for (unsigned j = bj; j <= ej; ++j)
           stream(i, j);
     }
-  inline void stream() { stream(0, nx_ - 1, 0, nj_ - 1); }
+  inline void stream() { stream(0, ni_ - 1, 0, nj_ - 1); }
   void stream(const std::vector<std::array<unsigned, 4>>&);
 
     // collide
@@ -114,29 +121,32 @@ public:
         for (unsigned j = bj; j <= ej; ++j)
           collide_and_bound(i, j);
     }
-  inline void collide_and_bound() { collide_and_bound(0, nx_ - 1, 0, nj_ - 1); }
+  inline void collide_and_bound() { collide_and_bound(0, ni_ - 1, 0, nj_ - 1); }
   void collide_and_bound(const std::vector<std::array<unsigned, 4>>&);
 
 private:
-  static const double[9][2] lat_vecs_;
-  static const double[9] w_;
+  static const double[num_k()][2] lat_vecs_;
+  static const double[num_k()] w_;
   static const double dx_;
   static const double dt_;
-  const unsigned nx_;
-  const unsigned ny_;
+  const unsigned ni_;
+  const unsigned nj_;
   std::unique_ptr<double[]> spf_;
   std::unique_ptr<double[]> spftemp_;
   std::vector<NodeDesc*> node_descs_;
+  SimpleMemPool mem_pool_;
 
   // lattice vectors and particle distribution functions
   inline double* pf_(const unsigned i, const unsigned j) 
-    { return &(spf_[i*nx_ + j]); }
+    { return &(spf_[(i*nj_ + j)*num_k()]); }
   inline double& f_(const unsigned i, const unsigned j, const unsigned k)
     { return *(pf_(i, j) + k); }
   inline double* pft_(const unsigned i, const unsigned j) 
-    { return &(spftemp_[i * nx_ + j]); }
+    { return &(spftemp_[(i*nj_ + j)*num_k()]); }
   inline double& ft_(const unsigned i, const unsigned j, const unsigned k)
     { return *(pft_(i, j) + k); }
+
+  void init_f_(const double rho);
 };
 
 } // namespace d2q9
