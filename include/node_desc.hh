@@ -44,9 +44,9 @@ private:
                        noexcept=0;
   virtual void stream_with_bcheck_(Lattice&, const unsigned, 
                                    const unsigned) const=0;
-  virtual void collide_and_bound_(Lattice&, const CollisionManager&,
-                                  const unsigned, const unsigned) 
-                                  const noexcept=0;
+  virtual void collide_and_bound_(Lattice&, IncompFlowMultiscaleMap&, 
+                                  const IncompFlowCollisionManager&,
+                                  const unsigned, const unsigned) const;
 };
 
 //! \class NodeInactive
@@ -62,9 +62,9 @@ private:
                        noexcept {}
   virtual void stream_with_bcheck_(Lattice&, const unsigned, 
                                    const unsigned) const {}
-  virtual void collide_and_bound_(Lattice&, const CollisionManager&,
-                                  const unsigned, const unsigned) 
-                                  const noexcept {};
+  void collide_and_bound_(Lattice&, IncompFlowMultiscaleMap&, 
+                          const IncompFlowCollisionManager&,
+                          const unsigned, const unsigned) const {}
 };
 
 //! \class AbstractNodeActive
@@ -81,8 +81,9 @@ protected:
   virtual void stream_(Lattice&, const unsigned, const unsigned) const noexcept;
   virtual void stream_with_bcheck_(Lattice&, const unsigned, 
                                    const unsigned) const;
-  virtual void collide_and_bound_(Lattice&, const CollisionManager&,
-                          const unsigned, const unsigned) const noexcept;
+  virtual void collide_and_bound_(Lattice&, IncompFlowMultiscaleMap&, 
+                                  const IncompFlowCollisionManager&,
+                                  const unsigned, const unsigned) const;
 };
 
 //! \class NodeActive
@@ -101,15 +102,16 @@ public:
 //! \brief West facing wall
 //!
 //! Represents a solid, west facing wall
-class NodeWestFacingWall : public AbstractNodeActive
+class NodeWestFacingWall : public AbstractNodeDesc
 {
 public:
   ~NodeWestFacingWall() {}
 private:
-  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_(Lattice&, const unsigned, const unsigned) const noexcept;
   void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void collide_and_bound_(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, IncompFlowMultiscaleMap&, 
+                          const IncompFlowCollisionManager&,
                           const unsigned, const unsigned) const;
 };
 
@@ -118,15 +120,16 @@ private:
 //! \brief South facing wall
 //!
 //! Represents a solid, south facing wall
-class NodeSouthFacingWall : public AbstractNodeActive
+class NodeSouthFacingWall : public AbstractNodeDesc
 {
 public:
   ~NodeSouthFacingWall() {}
 private:
-  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_(Lattice&, const unsigned, const unsigned) const noexcept;
   void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void collide_and_bound_(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, IncompFlowMultiscaleMap&, 
+                          const IncompFlowCollisionManager&,
                           const unsigned, const unsigned) const;
 };
 
@@ -135,15 +138,16 @@ private:
 //! \brief East facing wall
 //!
 //! Represents a solid, east facing wall
-class NodeEastFacingWall : public AbstractNodeActive
+class NodeEastFacingWall : public AbstractNodeDesc
 {
 public:
   ~NodeEastFacingWall() {}
 private:
-  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_(Lattice&, const unsigned, const unsigned) const noexcept;
   void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void collide_and_bound_(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, IncompFlowMultiscaleMap&, 
+                          const IncompFlowCollisionManager&,
                           const unsigned, const unsigned) const;
 };
 
@@ -152,15 +156,16 @@ private:
 //! \brief North facing wall
 //!
 //! Represents a solid, North facing wall
-class NodeNorthFacingWall : public AbstractNodeActive
+class NodeNorthFacingWall : public AbstractNodeDesc
 {
 public:
   ~NodeNorthFacingWall() {}
 private:
-  void stream_(Lattice&, const unsigned, const unsigned) const;
+  void stream_(Lattice&, const unsigned, const unsigned) const noexcept;
   void stream_with_bcheck_(Lattice&, const unsigned, 
                            const unsigned) const;
-  void collide_and_bound_(Lattice&, const CollisionManager&,
+  void collide_and_bound_(Lattice&, IncompFlowMultiscaleMap&, 
+                          const IncompFlowCollisionManager&,
                           const unsigned, const unsigned) const;
 };
 

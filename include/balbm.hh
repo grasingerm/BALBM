@@ -1,3 +1,6 @@
+#ifndef BALBM_HH
+#define BALBM_HH 
+
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
 //
@@ -14,26 +17,15 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#ifndef BALBM_CONFIG_HH
-#define BALBM_CONFIG_HH
+#include "balbm_config.hh"
+#include "collision_manager.hh"
+#include "constitutive.hh"
+#include "equilibrium.hh"
+#include "force.hh"
+#include "helpers.hh"
+#include "lattice.hh"
+#include "multiscale_map.hh"
+#include "node_desc.hh"
+#include "simulate.hh"
 
-// NOTE: for maximum performance define NDEBUG and do not define 
-//       BALBM_CHECK_BOUNDS_STREAMING.
-
-//#define NDEBUG
-
-//! Define this to use runtime bounds checking when streaming 
-//#define BALBM_CHECK_BOUNDS_STREAMING
-
-//! Define this to disable armadillo bounds checking
-//#define ARMA_NO_DEBUG
-
-//! Define this to allow armadillo to save to hdf5
-//#define ARMA_USE_HDF5
-
-namespace balbm
-{
-  constexpr std::string VERSION("0.0.1");
-}
-
-#endif // BALBM_CONFIG_HH 
+#endif // BALBM_HH
