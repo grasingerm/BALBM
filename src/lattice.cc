@@ -46,11 +46,11 @@ const double Lattice::dt_ = 1.0;
 //! \param lat Lattice to copy
 //! \return Copied lattice
 Lattice::Lattice(const Lattice& lat) 
-  : nx_(lat.num_x()), ny_(lat.num_y()), spf_(new double[nx_ * ny_ * num_k()]),
-    spftemp_(new double[nx_ * ny_ * num_k()]), node_descs_(lat.node_descs())
+  : ni_(lat.num_i()), nj_(lat.num_j()), spf_(new double[ni_ * nj_ * num_k()]),
+    spftemp_(new double[ni_ * nj_ * num_k()]), node_descs_(lat.node_descs())
 {
-  std::copy(&lat.spf_[0], &lat.spf_[nx * ny * num_k() - 1], &spf_[0]);
-  std::copy(&lat.spftemp_[0], &lat.spftemp_[nx * ny * num_k() - 1], 
+  std::copy(&lat.spf_[0], &lat.spf_[ni_ * nj_ * num_k() - 1], &spf_[0]);
+  std::copy(&lat.spftemp_[0], &lat.spftemp_[ni_ * nj_ * num_k() - 1], 
             &spftemp_[0]);
 }
 
@@ -62,17 +62,17 @@ Lattice& Lattice::operator=(const Lattice& lat)
 {
   if (this == &lat) return *this;
 
-  if (lat.num_x() * lat.num_y() > nx_ * ny_)
+  if (lat.num_i() * lat.num_j() > ni_ * nj_)
   {
     //TODO: consider writing an iterator for the lattice class
-    spf_.reset(new double[lat.num_x() * lat.num_y() * num_k()]);
-    spftemp_.reset(new double[lat.num_x() * lat.num_y() * num_k()]);
+    spf_.reset(new double[lat.num_i() * lat.num_j() * num_k()]);
+    spftemp_.reset(new double[lat.num_i() * lat.num_j() * num_k()]);
   }
 
-  nx_ = lat.num_x();
-  ny_ = lat.num_y();
-  std::copy(&lat.spf_[0], &lat.spf_[nx * ny * num_k() - 1], &spf_[0]);
-  std::copy(&lat.spftemp_[0], &lat.spftemp_[nx * ny * num_k() - 1], 
+  ni_ = lat.num_i();
+  nj_ = lat.num_j();
+  std::copy(&lat.spf_[0], &lat.spf_[ni_ * nj_ * num_k() - 1], &spf_[0]);
+  std::copy(&lat.spftemp_[0], &lat.spftemp_[ni_ * nj_ * num_k() - 1], 
             &spftemp_[0]);
 
   return *this;
@@ -83,7 +83,7 @@ Lattice& Lattice::operator=(const Lattice& lat)
 //! \param lat Lattice to be moved
 //! \return Moved lattice
 Lattice::Lattice(Lattice&& lat)
-  : nx_(lat.nx_), ny_(lat.ny_), spf_(std::move(lat.spf_)), 
+  : ni_(lat.ni_), nj_(lat.nj_), spf_(std::move(lat.spf_)), 
     spftemp_(std::move(lat.spftemp_)), 
     node_descs_(std::move(lat.node_descs_))
 {
@@ -97,8 +97,8 @@ Lattice::Lattice(Lattice&& lat)
 //! \return Moved lattice
 Lattice& Lattice::operator=(Lattice&& lat)
 {
-  nx_ = lat.num_x();
-  ny_ = lat.num_y();
+  ni_ = lat.num_i();
+  nj_ = lat.num_j();
   spf_ = std::move(lat.spf_);
   spftemp_ = std::move(lat.spftemp_);
   node_descs_ = std::move(lat.node_descs_);
@@ -118,16 +118,38 @@ void stream(const std::vector<std::array<unsigned, 4>>& bounds)
     stream(row[0], row[1], row[2], row[3]);
 }
 
+//! Perform bounds checking
+//!
+//! \param i Index in the y-direction
+//! \param j Index in the x-direction
+//! \return true if in bounds, false if out of bounds
+//! \throw out_of_range
+bool Lattice::check_bounds(const unsigned i, const unsigned j) 
+  const throw(std::out_of_range)
+{
+  bool is_in_bounds = in_bounds(i, j);
+  if (is_in_bounds)
+  {
+    std::ostringstream oss;
+    oss << "Ill-defined boundaries. Particles streamed out of bounds from "
+        << "node (" << i << " ," << j << ") to (" << i_next << ", "
+        << j_next << "). Check boundary conditions.";
+    throw std::out_of_range (oss.str());
+  }
+  
+  return is_in_bounds;
+}
+
 //! Initialize domain to equilibrium based on a reference density
 //!
 //! \param rho Reference density
 void Lattice::init_f_(const double rho)
 {
-  const unsigned nx = num_x();
-  const unsigned ny = num_y();
+  const unsigned ni = num_i();
+  const unsigned nj = num_j();
 
-  for (unsigned i = 0; i < nx; ++i)
-    for (unsigned j = 0; j < ny; ++j)
+  for (unsigned i = 0; i < ni; ++i)
+    for (unsigned j = 0; j < nj; ++j)
       for (unsigned k = 0; k < 9; ++k)
         f_(i, j, k) = w(k) * rho;
 }

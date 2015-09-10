@@ -17,6 +17,9 @@
 #ifndef BALBM_CONFIG_HH
 #define BALBM_CONFIG_HH
 
+// NOTE: for maximum performance define NDEBUG and do not define 
+//       BALBM_CHECK_BOUNDS_STREAMING.
+
 //#define NDEBUG
 
 //! Define this to use runtime bounds checking when streaming 

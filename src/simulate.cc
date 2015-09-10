@@ -38,10 +38,11 @@ AbstractSimulation::~AbstractSimulation() {}
 IncompFlowSimulation::IncompFlowSimulation
   (const unsigned ni, const unsigned nj, const double rho, const double mu, 
    AbstractIncompFlowEqFunct* pfeq, AbstractConstitutiveEq* pconstiteq, 
-   AbstractForce* pforce, std::vector<AbstractSimCallback*>* scbs = nullptr)
+   AbstractForce* pforce, std::vector<AbstractSimCallback*>* pscbs = nullptr)
   : AbstractSimulation(), 
     lat_(Lattice(ni, nj, rho)), mmap_(IncompFlowMultiscaleMap(ni, nj, mu)),
-    cman_(pfeq, pconstiteq, pforce) {}
+    cman_(pfeq, pconstiteq, pforce), 
+    spscbs_(std::unique_ptr<std::vector<AbstractSimCallback*>>(pscbs)) {}
 
 //! Run an imcompressible flow simulation
 //!
@@ -52,7 +53,9 @@ unsigned IncompFlowSimulation::simulate_(const unsigned nsteps)
   unsigned init_step = step();
 
   try
+  {
     for (unsigned k = init_step; k <= nsteps; ++k) simulate_();
+  }
   catch (std::exception& e)
   {
     std::cerr << "ERROR: simulation terminated after " << k << " steps.\n"
@@ -68,6 +71,9 @@ unsigned IncompFlowSimulation::simulate_(const unsigned nsteps)
 unsigned IncompFlowSimulation::simulate_()
 {
   // code for one time step
+  lat_.stream();
+  lat_.swap_f_ptrs();
+  lat_.collide_and_bound(mmap_, cman_);
   ++step_;
   return 1;
 }

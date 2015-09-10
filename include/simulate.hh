@@ -48,7 +48,7 @@ private:
 
 // TODO: should we push inheritance hierarchies and customization down the
 //       composition chain? or up? down is more modular and complex, up is
-//       more efficient and rigid...
+//       more efficient and rigid... both is the most flexible?
 
 //! \class IncompFlowSimulation
 //!
@@ -67,6 +67,7 @@ private:
   Lattice lat_;
   IncompFlowMultiscaleMap mmap_;
   IncompFlowCollisionManager cman_;
+  std::unique_ptr<std::vector<AbstractSimCallback*>> spscbs_;
 };
 
 } // namespace d2q9
