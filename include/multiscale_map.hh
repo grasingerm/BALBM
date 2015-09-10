@@ -20,11 +20,9 @@
 #include "lattice.hh"
 #include <memory>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! Convert visocisty to relaxation time
 //!
@@ -32,8 +30,9 @@ namespace d2q9
 //! \param cssq Speed of sound squared
 //! \param dt Length of time step
 //! \return Relaxation time
-inline double mu_to_relax(const double mu, const double cssq, const double dt)
-  { return mu / (cssq*dt) + 0.5; }
+inline double mu_to_relax(const double mu, const double cssq, const double dt) {
+  return mu / (cssq * dt) + 0.5;
+}
 
 //! Convert visocisty to collision frequency
 //!
@@ -41,30 +40,35 @@ inline double mu_to_relax(const double mu, const double cssq, const double dt)
 //! \param cssq Speed of sound squared
 //! \param dt Length of time step
 //! \return Collision frequency
-inline double mu_to_omega(const double mu, const double cssq, const double dt)
-  { return 1.0 / mu_to_relax(mu, cssq, dt); }
+inline double mu_to_omega(const double mu, const double cssq, const double dt) {
+  return 1.0 / mu_to_relax(mu, cssq, dt);
+}
 
 //! \class AbstractMultiscaleMap
 //!
 //! \brief Base class for map from mesoscale to macroscale
 //!
 //! Maps particle distributions to macroscopic variables of interest
-class AbstractMultiscaleMap
-{
+class AbstractMultiscaleMap {
 public:
-  AbstractMultiscaleMap(const unsigned nx, const unsigned ny) 
-    : ni_(ni), nj_(nj), rho_(std::unique_ptr<double[]>(new double[nx * ny])) {}
-  virtual ~AbstractMultiscaleMap()=0;
+  AbstractMultiscaleMap(const unsigned nx, const unsigned ny)
+      : ni_(ni), nj_(nj), rho_(std::unique_ptr<double[]>(new double[nx * ny])) {
+  }
+  virtual ~AbstractMultiscaleMap() = 0;
   inline double num_i() const noexcept { return ni_; }
   inline double num_j() const noexcept { return nj_; }
-  inline double rho(const unsigned i, const unsigned j) const 
-    { return sprho_[i * num_j() + j]; }
-  inline void map_to_macro(const Lattice& lat) { map_to_macro_(lat); }
+  inline double rho(const unsigned i, const unsigned j) const {
+    return sprho_[i * num_j() + j];
+  }
+  inline void map_to_macro(const Lattice &lat) { map_to_macro_(lat); }
+
 protected:
-  inline double& rho_(const unsigned i, const unsigned j) 
-    { return sprho_[i * num_j() + j]; }
-  virtual void map_to_macro_(const Lattice&);
-  virtual void map_to_macro_(const Lattice&, const unsigned, const unsigned);
+  inline double &rho_(const unsigned i, const unsigned j) {
+    return sprho_[i * num_j() + j];
+  }
+  virtual void map_to_macro_(const Lattice &);
+  virtual void map_to_macro_(const Lattice &, const unsigned, const unsigned);
+
 private:
   unsigned nx_;
   unsigned ny_;
@@ -76,11 +80,10 @@ private:
 //! \brief Maps particle distributions to local densities
 //!
 //! Concrete class for density-based multiscale map
-class DensityMultiscaleMap : public AbstractMultiscaleMap
-{
+class DensityMultiscaleMap : public AbstractMultiscaleMap {
 public:
-  DensityMultiscaleMap(const unsigned ni, const unsigned nj) 
-    : AbstractMultiscaleMap(ni, nj) {}
+  DensityMultiscaleMap(const unsigned ni, const unsigned nj)
+      : AbstractMultiscaleMap(ni, nj) {}
   ~DensityMultiscaleMap() {}
 };
 
@@ -90,28 +93,34 @@ public:
 //!
 //! Concrete class for incompressible flow multiscale map. Maps particle
 //! distributions to local macroscopic density, flow, and collision frequency
-class IncompFlowMultiscaleMap : public AbstractMultiscaleMap
-{
+class IncompFlowMultiscaleMap : public AbstractMultiscaleMap {
 public:
-  IncompFlowMultiscaleMap
-    (const unsigned ni, const unsigned nj, const double omega) 
-    : AbstractMultiscaleMap(ni, nj), 
-      spu_(std::unique_ptr<double[]>(new double[ni * nj * 2])),
-      spomega_(std::unique_ptr<double[]>(new double[ni * nj])) 
-      { init_(omega) }
+  IncompFlowMultiscaleMap(const unsigned ni, const unsigned nj,
+                          const double omega)
+      : AbstractMultiscaleMap(ni, nj),
+        spu_(std::unique_ptr<double[]>(new double[ni * nj * 2])),
+        spomega_(std::unique_ptr<double[]>(new double[ni * nj])) {
+    init_(omega)
+  }
   ~IncompFlowMultiscaleMap() {}
-  inline double u(const unsigned i, const unsigned j, const unsigned c) const 
-    { return spu_[2 * (i * num_j() + j) + c]; }
-  inline const double* pu(const unsigned i, const unsigned j) const 
-    { return &spu_[2 * (i * num_j() + j)]; }
-  inline double& omega(const unsigned i, const unsigned j)
-    { return spomega_[i * num_j() + j]; }
-  inline double omega(const unsigned i, const unsigned j) const
-    { return spomega_[i * num_j() + j]; }
+  inline double u(const unsigned i, const unsigned j, const unsigned c) const {
+    return spu_[2 * (i * num_j() + j) + c];
+  }
+  inline const double *pu(const unsigned i, const unsigned j) const {
+    return &spu_[2 * (i * num_j() + j)];
+  }
+  inline double &omega(const unsigned i, const unsigned j) {
+    return spomega_[i * num_j() + j];
+  }
+  inline double omega(const unsigned i, const unsigned j) const {
+    return spomega_[i * num_j() + j];
+  }
+
 private:
-  inline double& u_(const unsigned i, const unsigned j, const unsigned c)
-    { return spu_[2 * (i * num_j() + j) + c]; }
-  void map_to_macro_(const Lattice&, const unsigned, const unsigned);
+  inline double &u_(const unsigned i, const unsigned j, const unsigned c) {
+    return spu_[2 * (i * num_j() + j) + c];
+  }
+  void map_to_macro_(const Lattice &, const unsigned, const unsigned);
   void init_();
   std::unique_ptr<double[]> spu_;
   std::unique_ptr<double[]> spomega_;
@@ -121,4 +130,4 @@ private:
 
 } // namespace balbm
 
-#endif //MULTISCALE_MAP_HH
+#endif // MULTISCALE_MAP_HH

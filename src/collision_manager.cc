@@ -17,11 +17,9 @@
 #include "collision_manager.hh"
 #include <armadillo>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! Virtual destructor
 AbstractCollisionManager::~AbstractCollisionManager() {}
@@ -32,26 +30,26 @@ AbstractCollisionManager::~AbstractCollisionManager() {}
 //! \param mmap Multiscale map
 //! \param i Index in x-direction
 //! \param j Index in y-direction
-void IncompFlowCollisionManager::collide_
-  (Lattice& lat, IncompFlowMultiscaleMap& mmap, const unsigned i, 
-   const unsigned j) const
-{
+void IncompFlowCollisionManager::collide_(Lattice &lat,
+                                          IncompFlowMultiscaleMap &mmap,
+                                          const unsigned i,
+                                          const unsigned j) const {
   const auto rhoij = mmap.rho(i, j);
   arma::vec::fixed<2> uij = arma::vec(mmap.pu(i, j));
-  if (pextforce_ != nullptr) uij = pextforce_->u_trans(uij);
+  if (pextforce_ != nullptr)
+    uij = pextforce_->u_trans(uij);
 
   const unsigned nk = lat.num_k();
   arma::vec feq(nk);
   arma::vec fneq(nk);
-  for (unsigned k = 0; k < nk; ++k)
-  {
+  for (unsigned k = 0; k < nk; ++k) {
     feq(k) = pfeq_->f(lat, rhoij, uij, k);
     fneq(k) = lat.f(i, j, k) - feq(k);
   }
 
   const auto mu = pconstiteq_->mu(lat, mmap, fneq, i, j);
   const auto omega = mu_to_omega(mu, lat.cssq(), lat.dt());
-  
+
   if (pextforce_ != nullptr)
     for (unsigned k = 0; k < nk; ++k)
       lat.f(i, j, k) = (omega * feq(k) + (1.0 - omega) * lat.k(i, j, k)
@@ -60,7 +58,7 @@ void IncompFlowCollisionManager::collide_
     for (unsigned k = 0; k < nk; ++k)
       lat.f(i, j, k) = (omega * feq(k) + (1.0 - omega) * lat.k(i, j, k);
 
-  mmap.omega(i, j) = omega; 
+  mmap.omega(i, j) = omega;
 }
 
 } // namespace d2q9

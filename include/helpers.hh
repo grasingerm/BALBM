@@ -1,5 +1,5 @@
 #ifndef HELPERS_HH
-#define HELPERS_HH 
+#define HELPERS_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger

@@ -1,5 +1,5 @@
 #ifndef SIMULATE_HH
-#define SIMULATE_HH 
+#define SIMULATE_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -24,26 +24,25 @@
 #include <memory>
 #include <vector>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! \class AbstractSimulation
 //!
 //! \brief Abstract base class for simulation types
-class AbstractSimulation
-{
+class AbstractSimulation {
 public:
-  virtual ~AbstractSimulation()=0;
+  virtual ~AbstractSimulation() = 0;
   AbstractSimulation() : step_(0) {}
   inline unsigned simulate(const unsigned nsteps) { return simulate_(nsteps); }
   inline unsigned step() const { return step_; }
+
 protected:
   unsigned step_;
+
 private:
-  virtual unsigned simulate_(const unsigned nsteps)=0;
+  virtual unsigned simulate_(const unsigned nsteps) = 0;
 };
 
 // TODO: should we push inheritance hierarchies and customization down the
@@ -53,21 +52,21 @@ private:
 //! \class IncompFlowSimulation
 //!
 //! \brief Incompressible flow lattice Boltzmann method simulation
-class IncompFlowSimulation : public AbstractSimulation
-{
+class IncompFlowSimulation : public AbstractSimulation {
 public:
-  ~IncompFlowSimulation () {}
-  IncompFlowSimulation
-    (const unsigned, const unsigned, const double, const double, 
-     AbstractIncompFlowEqFunct*, AbstractConstitutiveEq*, AbstractForce*, 
-     std::vector<AbstractSimCallback*>*);
+  ~IncompFlowSimulation() {}
+  IncompFlowSimulation(const unsigned, const unsigned, const double,
+                       const double, AbstractIncompFlowEqFunct *,
+                       AbstractConstitutiveEq *, AbstractForce *,
+                       std::vector<AbstractSimCallback *> *);
+
 private:
   unsigned simulate_(const unsigned);
   unsigned simulate_();
   Lattice lat_;
   IncompFlowMultiscaleMap mmap_;
   IncompFlowCollisionManager cman_;
-  std::unique_ptr<std::vector<AbstractSimCallback*>> spscbs_;
+  std::unique_ptr<std::vector<AbstractSimCallback *>> spscbs_;
 };
 
 } // namespace d2q9

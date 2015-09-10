@@ -16,11 +16,9 @@
 
 #include "constitutive.hh"
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! Virtual destructor definition
 AbstractConstitutiveEq::~AbstractConstitutiveEq() {}
@@ -33,10 +31,12 @@ AbstractConstitutiveEq::~AbstractConstitutiveEq() {}
 //! \param i Index in x-direction
 //! \param j Index in y-direction
 //! \return Kinematic viscosity
-double NewtonianConstitutiveEq::mu_
-  (const Lattice& lat, const AbstractMultiscaleMap& mmap, const arma::vec& fneq,
-   const unsigned i, const unsigned j)
-{ return cmu_; }
+double NewtonianConstitutiveEq::mu_(const Lattice &lat,
+                                    const AbstractMultiscaleMap &mmap,
+                                    const arma::vec &fneq, const unsigned i,
+                                    const unsigned j) {
+  return cmu_;
+}
 
 } // d2q9
 

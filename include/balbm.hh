@@ -1,5 +1,5 @@
 #ifndef BALBM_HH
-#define BALBM_HH 
+#define BALBM_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger

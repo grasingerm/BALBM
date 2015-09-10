@@ -16,11 +16,9 @@
 #include "equilibrium.hh"
 #include <armadillo>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! Virtual destructor definition
 AbstractIncompEqFunct::~AbstractIncompEqFunct() {}
@@ -32,15 +30,15 @@ AbstractIncompEqFunct::~AbstractIncompEqFunct() {}
 //! \param u Macroscopic velocity vector
 //! \param k Index of lattice direction
 //! \return Equilibrium particle distribution
-double IncompFlowEqFunct::f_ (const Lattice& lat, const double rho, 
-                              const arma::vec& u, const unsigned k) const
-{
-  const arma::vec ck(lat.pc(k), 2, false, true); 
+double IncompFlowEqFunct::f_(const Lattice &lat, const double rho,
+                             const arma::vec &u, const unsigned k) const {
+  const arma::vec ck(lat.pc(k), 2, false, true);
   const double ckdotu = arma::dot(ck, u);
   const double cssq = lat.cssq();
 
-  return rho * lat.w(k) * (1.0 + ckdotu/cssq + 0.5*(ckdotu*ckdotu)/(cssq*cssq)
-                           - 0.5 * dot(u, u) / cssq);
+  return rho * lat.w(k) *
+         (1.0 + ckdotu / cssq + 0.5 * (ckdotu * ckdotu) / (cssq * cssq) -
+          0.5 * dot(u, u) / cssq);
 }
 
 //! Equilibrium distribution function for incompressible flow
@@ -50,19 +48,15 @@ double IncompFlowEqFunct::f_ (const Lattice& lat, const double rho,
 //! \param u Macroscopic velocity vector
 //! \param k Index of lattice direction
 //! \return Equilibrium particle distribution
-double IncompFlowHLEqFunct::f_ (const Lattice& lat, const double rho, 
-                                const arma::vec& u, const unsigned k) const
-{
-  const arma::vec ck(lat.pc(k), 2, false, true); 
+double IncompFlowHLEqFunct::f_(const Lattice &lat, const double rho,
+                               const arma::vec &u, const unsigned k) const {
+  const arma::vec ck(lat.pc(k), 2, false, true);
   const double ckdotu = arma::dot(ck, u);
   const double cssq = lat.cssq();
 
-  return (lat.w(k) * (rho + rho_o_ + (ckdotu/cssq
-                                      + 0.5*(ckdotu*ckdotu)/(cssq*cssq)
-                                      - 0.5 * dot(u, u) / cssq)
-                     ));
+  return (lat.w(k) * (rho + rho_o_ +
+                      (ckdotu / cssq + 0.5 * (ckdotu * ckdotu) / (cssq * cssq) -
+                       0.5 * dot(u, u) / cssq)));
 }
-
 }
-
 }

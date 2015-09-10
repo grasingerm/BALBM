@@ -1,5 +1,5 @@
 #ifndef SIMULATE_HH
-#define SIMULATE_HH 
+#define SIMULATE_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -17,15 +17,9 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
-
-
-
-} // namespace d2q9
+namespace d2q9 {} // namespace d2q9
 
 } // namespace balbm
 

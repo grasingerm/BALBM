@@ -23,19 +23,18 @@
 #include <tuple>
 #include <functional>
 
-namespace baprof
-{
+namespace baprof {
 
-static std::chrono::time_point<std::chrono::high_resolution_clock> 
-  tic_start__ = 0;
+static std::chrono::time_point<std::chrono::high_resolution_clock> tic_start__ =
+    0;
 
 //! start stop watch
 inline void tic() { tic_start__ = std::chrono::high_resolution_clock::now(); }
 
 //! stop stop watch. tell time
-void toc()
-{
-  if (tic_start__ == 0) throw std::logic_error("toc() called before tic()");
+void toc() {
+  if (tic_start__ == 0)
+    throw std::logic_error("toc() called before tic()");
   const auto elapsed = tic_start__ - std::chrono::high_resolution_clock::now();
   std::cout << "Time elapsed: " << elapsed.count() << '\n';
   tic_start__ = 0;
@@ -46,16 +45,15 @@ void toc()
 //! \param f Function pointer
 //! \param args Function arguments
 //! \return (function result, function duration)
-template<typename Result, typename ...Sig>
-std::tuple<Result, std::chrono::duration<double> >
-profile(Result (*f)(Sig...), Sig... args)
-{
+template <typename Result, typename... Sig>
+std::tuple<Result, std::chrono::duration<double>> profile(Result (*f)(Sig...),
+                                                          Sig... args) {
   std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
   start = std::chrono::high_resolution_clock::now();
   Result result = f(args...);
   end = std::chrono::high_resolution_clock::now();
 
-  return std::tuple<Result, std::chrono::duration<double>> (result, end-start);
+  return std::tuple<Result, std::chrono::duration<double>>(result, end - start);
 }
 
 //! Profile a simple function given a functor
@@ -63,16 +61,15 @@ profile(Result (*f)(Sig...), Sig... args)
 //! \param f Functor object
 //! \param args Function arguments
 //! \return (functor result, function duration)
-template<typename Result, typename ...Sig>
-std::tuple<Result, std::chrono::duration<double> >
-profile(const std::function<Result(Sig...)> &f, Sig... args)
-{
+template <typename Result, typename... Sig>
+std::tuple<Result, std::chrono::duration<double>>
+profile(const std::function<Result(Sig...)> &f, Sig... args) {
   std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
   start = std::chrono::high_resolution_clock::now();
   Result result = f(args...);
   end = std::chrono::high_resolution_clock::now();
 
-  return std::tuple<Result, std::chrono::duration<double>> (result, end-start);
+  return std::tuple<Result, std::chrono::duration<double>>(result, end - start);
 }
 
 //! Profile a simple function given a function pointer
@@ -80,10 +77,8 @@ profile(const std::function<Result(Sig...)> &f, Sig... args)
 //! \param f Function pointer
 //! \param args Function arguments
 //! \return function duration
-template<typename ...Sig>
-std::chrono::duration<double>
-profile_void (void (*f)(Sig...), Sig... args)
-{
+template <typename... Sig>
+std::chrono::duration<double> profile_void(void (*f)(Sig...), Sig... args) {
   std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
   start = std::chrono::high_resolution_clock::now();
   f(args...);
@@ -97,10 +92,9 @@ profile_void (void (*f)(Sig...), Sig... args)
 //! \param f Functor object
 //! \param args Function arguments
 //! \return function duration
-template<typename ...Sig>
-std::chrono::duration<double>
-profile_void (const std::function<void(Sig...)> &f, Sig... args)
-{
+template <typename... Sig>
+std::chrono::duration<double> profile_void(const std::function<void(Sig...)> &f,
+                                           Sig... args) {
   std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
   start = std::chrono::high_resolution_clock::now();
   f(args...);

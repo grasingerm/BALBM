@@ -17,11 +17,9 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 /* TODO: does it make sense to have a base class for all equilibrium equations?
 //! \class AbstractEqFunct
@@ -42,7 +40,8 @@ private:
 };
 */
 
-//TODO: if we start implementing other lattices then "f" should be a function template/overloaded?
+// TODO: if we start implementing other lattices then "f" should be a function
+// template/overloaded?
 
 //! \class AbstractIncompFlowEqFunct
 //!
@@ -50,16 +49,17 @@ private:
 //!
 //! Defines functor for calculating a local equilibrium distribution function
 //! for simulating incompressible flow
-class AbstractIncompFlowEqFunct
-{
+class AbstractIncompFlowEqFunct {
 public:
-  virtual ~AbstractIncompFlowEqFunct()=0;
-  inline double f(const Lattice& lat, const double rho, const arma::vec& u,
-                  const unsigned k) const
-    { return f_(lat, rho, u, k); }
+  virtual ~AbstractIncompFlowEqFunct() = 0;
+  inline double f(const Lattice &lat, const double rho, const arma::vec &u,
+                  const unsigned k) const {
+    return f_(lat, rho, u, k);
+  }
+
 private:
-  virtual double f_(const Lattice& lat, const double rho, const arma::vec& u,
-                   const unsigned k) const=0;
+  virtual double f_(const Lattice &lat, const double rho, const arma::vec &u,
+                    const unsigned k) const = 0;
 };
 
 //! \class IncompFlowEqFunct
@@ -68,12 +68,12 @@ private:
 //!
 //! Defines functor for calculating a local equilibrium distribution function
 //! for simulating incompressible flow
-class IncompFlowEqFunct : public AbstractIncompFlowEqFunct
-{
+class IncompFlowEqFunct : public AbstractIncompFlowEqFunct {
 public:
   ~IncompFlowEqFunct() {}
+
 private:
-  double f_(const Lattice& lat, const double rho, const arma::vec& u,
+  double f_(const Lattice &lat, const double rho, const arma::vec &u,
             const unsigned k) const;
 };
 
@@ -81,17 +81,17 @@ private:
 //!
 //! \brief He and Lou equilibrium distribution function for incompressible flow
 //!
-//! Defines functor for calculating a local He and Lou equilibrium distribution 
+//! Defines functor for calculating a local He and Lou equilibrium distribution
 //! function for simulating incompressible flow. Used for numerical stability.
-class IncompFlowHLEqFunct : public AbstractIncompFlowEqFunct
-{
+class IncompFlowHLEqFunct : public AbstractIncompFlowEqFunct {
 public:
   ~IncompFlowHLEqFunct() {}
   IncompFlowHLEqFunct(unsigned rho_o) : rho_o_(rho_o) {}
+
 private:
   double rho_o_;
-  double f_(const Lattice& lat, const double rho, const arma::vec& u,
-            const unsigned k) const=0;
+  double f_(const Lattice &lat, const double rho, const arma::vec &u,
+            const unsigned k) const = 0;
 };
 
 } // namespace d2q9

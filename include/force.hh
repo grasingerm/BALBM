@@ -1,5 +1,5 @@
 #ifndef FORCE_HH
-#define FORCE_HH 
+#define FORCE_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -21,34 +21,35 @@
 #include "lattice.hh"
 #include <armadillo>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! \class AbstractForce
 //!
 //! \brief Abstract base class for force implementations
 //!
 //! Provide polymorphic behavior for forces and force implementations
-class AbstractForce
-{
+class AbstractForce {
 public:
-  virtual ~AbstractForce()=0;
-  AbstractForce(const std::array<double, 2>& F) : F_(F) {}
-  inline arma::vec::fixed<2> u_trans(const Lattice& lat, const arma::vec& u) 
-    const { return u_trans_(lat, u); }
-  inline double f_col(const Lattice& lat, const double omega, 
-                      const arma::vec& u, const unsigned k) const
-    { return f_col_(lat, omega, u, k); }
-  inline const std::array<double, 2>& F() const { return F_; }
+  virtual ~AbstractForce() = 0;
+  AbstractForce(const std::array<double, 2> &F) : F_(F) {}
+  inline arma::vec::fixed<2> u_trans(const Lattice &lat,
+                                     const arma::vec &u) const {
+    return u_trans_(lat, u);
+  }
+  inline double f_col(const Lattice &lat, const double omega,
+                      const arma::vec &u, const unsigned k) const {
+    return f_col_(lat, omega, u, k);
+  }
+  inline const std::array<double, 2> &F() const { return F_; }
+
 private:
   std::array<double, 2> F_;
-  virtual arma::vec::fixed<2> u_trans_(const Lattice&, const arma::vec&) 
-    const=0; 
-  virtual double f_col_(const Lattice&, const double omega, const arma::vec&, 
-                        const unsigned k) const=0;
+  virtual arma::vec::fixed<2> u_trans_(const Lattice &,
+                                       const arma::vec &) const = 0;
+  virtual double f_col_(const Lattice &, const double omega, const arma::vec &,
+                        const unsigned k) const = 0;
 };
 
 //! \class SukopThorneForce
@@ -57,14 +58,14 @@ private:
 //!
 //! One of the forcing implementations found in Lattice Boltzmann Method for
 //! Geoscientists and Engineers by Sukop and Thorne 2005
-class SukopThorneForce : public AbstractForce
-{
+class SukopThorneForce : public AbstractForce {
 public:
-  ~SukopThorneForce() {};
-  SukopThorneForce(const std::array<double, 2>& F) : AbstractForce(F) {}
+  ~SukopThorneForce(){};
+  SukopThorneForce(const std::array<double, 2> &F) : AbstractForce(F) {}
+
 private:
-  arma::vec::fixed<2> u_trans_(const Lattice&, const arma::vec&) const; 
-  double f_col_(const Lattice&, const double, const arma::vec&, 
+  arma::vec::fixed<2> u_trans_(const Lattice &, const arma::vec &) const;
+  double f_col_(const Lattice &, const double, const arma::vec &,
                 const unsigned) const;
 };
 
@@ -74,14 +75,14 @@ private:
 //!
 //! One of the forcing implementations found in Discrete lattice effects on the
 //! forcing termin the lattice Boltzmann method Guo et. al. 2002
-class GuoForce : public AbstractForce
-{
+class GuoForce : public AbstractForce {
 public:
-  ~GuoForce() {};
-  GuoForce(const std::array<double, 2>& F) : AbstractForce(F) {}
+  ~GuoForce(){};
+  GuoForce(const std::array<double, 2> &F) : AbstractForce(F) {}
+
 private:
-  arma::vec::fixed<2> u_trans_(const Lattice&, const arma::vec&) const; 
-  double f_col_(const Lattice&, const double, const arma::vec&, 
+  arma::vec::fixed<2> u_trans_(const Lattice &, const arma::vec &) const;
+  double f_col_(const Lattice &, const double, const arma::vec &,
                 const unsigned) const;
 };
 

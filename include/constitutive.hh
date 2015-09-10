@@ -21,28 +21,28 @@
 #include <armadillo>
 #include <limits>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! \class AbstractConstitutiveEq
 //!
 //! \brief Base class for constitutive equations for viscosity
 //!
 //! Maps particle distributions to macroscopic strain rate to viscosity
-class AbstractConstitutiveEq
-{
+class AbstractConstitutiveEq {
 public:
-  virtual ~AbstractConstitutiveEq()=0;
-  inline double mu(const Lattice& lat, const AbstractMultiscaleMap& mmap,
-                   const arma::vec& fneq, const unsigned i, const unsigned j)
-    const { return mu_(lat, mmap, fneq, i, j); }
+  virtual ~AbstractConstitutiveEq() = 0;
+  inline double mu(const Lattice &lat, const AbstractMultiscaleMap &mmap,
+                   const arma::vec &fneq, const unsigned i,
+                   const unsigned j) const {
+    return mu_(lat, mmap, fneq, i, j);
+  }
+
 private:
-  virtual double mu_(const Lattice&, const AbstractMultiscaleMap&,
-                     const arma::vec&, const unsigned, const unsigned)
-    const=0;
+  virtual double mu_(const Lattice &, const AbstractMultiscaleMap &,
+                     const arma::vec &, const unsigned,
+                     const unsigned) const = 0;
 };
 
 //! \class NewtonianConstitutiveEq
@@ -50,15 +50,15 @@ private:
 //! \brief Class for constant viscosity
 //!
 //! Newtonian constitutive equation
-class NewtonianConstitutiveEq : public AbstractConstitutiveEq
-{
+class NewtonianConstitutiveEq : public AbstractConstitutiveEq {
 public:
   ~NewtonianConstitutiveEq() {}
   NewtonianConstitutiveEq(const double mu) : cmu_(mu) {}
+
 private:
   const double cmu_;
-  double mu_(const Lattice&, const AbstractMultiscaleMap&,
-             const arma::vec&, const unsigned, const unsigned);
+  double mu_(const Lattice &, const AbstractMultiscaleMap &, const arma::vec &,
+             const unsigned, const unsigned);
 };
 
 //! \class BinghamConstitutiveEq
@@ -67,21 +67,21 @@ private:
 //!
 //! Newtonian constitutive equation
 // TODO: should this be broken down further into strain rate calc and solver?
-class BinghamConstitutiveEq
-{
+class BinghamConstitutiveEq {
 public:
   ~BinghamConstitutiveEq() {}
-  BinghamConstitutiveEq
-    (const double mu_p, const double tau_y, const double m, 
-     const double gamma_min = std::numeric_limits<double>::epsilon()) 
-    : mu_p_(mu_p), tau_y_(tau_y), m_(m), gamma_min_(gamma_min) {}
+  BinghamConstitutiveEq(
+      const double mu_p, const double tau_y, const double m,
+      const double gamma_min = std::numeric_limits<double>::epsilon())
+      : mu_p_(mu_p), tau_y_(tau_y), m_(m), gamma_min_(gamma_min) {}
+
 private:
   const double mu_p_;
   const double tau_y_;
   const double m_;
   const double gamma_min_;
-  double mu_(const Lattice&, const AbstractMultiscaleMap&,
-             const arma::vec&, const unsigned, const unsigned);
+  double mu_(const Lattice &, const AbstractMultiscaleMap &, const arma::vec &,
+             const unsigned, const unsigned);
 };
 
 } // namespace d2q9

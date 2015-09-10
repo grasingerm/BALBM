@@ -16,11 +16,9 @@
 
 #include "multiscale_map.hh"
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! Virtual destructor for base class
 AbstractMultiscaleMap::~AbstractMultiscaleMap() {}
@@ -28,8 +26,7 @@ AbstractMultiscaleMap::~AbstractMultiscaleMap() {}
 //! Map particle distribution functions to density
 //!
 //! \param lat D2Q9 lattice
-AbstractMultiscaleMap::map_to_macro_(const Lattice& lat)
-{
+AbstractMultiscaleMap::map_to_macro_(const Lattice &lat) {
   for (unsigned i = 0; i < num_x(); ++i)
     for (unsigned j = 0; j < num_y(); ++j)
       map_to_macro_(i, j);
@@ -40,31 +37,29 @@ AbstractMultiscaleMap::map_to_macro_(const Lattice& lat)
 //! \param lat D2Q9 lattice
 //! \param i x-coord of node
 //! \param j y-coord of node
-void AbstractMultiscaleMap::map_to_macro_
-  (const Lattice& lat, const unsigned i, const unsigned j)
-{
+void AbstractMultiscaleMap::map_to_macro_(const Lattice &lat, const unsigned i,
+                                          const unsigned j) {
   const nk = lat.num_k();
   rho_(i, j) = 0.;
   for (unsigned k = 0; i < nk; ++k)
     rho_(i, j) += lat.f(i, j, k);
 }
 
-//! Map particle distribution functions to incompressible flow macroscopic 
+//! Map particle distribution functions to incompressible flow macroscopic
 //! variables
 //!
 //! \param lat D2Q9 lattice
 //! \param i x-coord of node
 //! \param j y-coord of node
-void IncompFlowMultiscaleMap::map_to_macro_
-  (const Lattice& lat, const unsigned i, const unsigned j)
-{
+void IncompFlowMultiscaleMap::map_to_macro_(const Lattice &lat,
+                                            const unsigned i,
+                                            const unsigned j) {
   const nk = lat.num_k();
   rho_(i, j) = 0.;
   u_(i, j, 0) = 0.;
   u_(i, j, 1) = 0.;
 
-  for (unsigned k = 0; k < nk; ++k)
-  {
+  for (unsigned k = 0; k < nk; ++k) {
     rho_(i, j) += lat.f(i, j, k);
     u_(i, j, 0) += lat.k(k, 0);
     u_(i, j, 1) += lat.k(k, 1);
@@ -74,14 +69,12 @@ void IncompFlowMultiscaleMap::map_to_macro_
 //! Initialize values in the multiscale map
 //!
 //! \param omega Initial collision frequency
-void IncompFlowMultiscaleMap::init_(const double omega)
-{
+void IncompFlowMultiscaleMap::init_(const double omega) {
   const unsigned nx = num_x();
   const unsigned ny = num_y();
 
   for (unsigned i = 0; i < nx; ++i)
-    for (unsigned j = 0; j < ny; ++j)
-    {
+    for (unsigned j = 0; j < ny; ++j) {
       this->u_(i, j, 0) = 0.0;
       this->u_(i, j, 1) = 0.0;
       this->omega(i, j) = omega;

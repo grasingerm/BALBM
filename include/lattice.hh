@@ -27,13 +27,11 @@
 #include <memory>
 #include <vector>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
-//TODO: "More code (ALWAYS) runs slower" -- John Lakos --
+// TODO: "More code (ALWAYS) runs slower" -- John Lakos --
 
 //! \class Lattice
 //!
@@ -49,103 +47,113 @@ namespace d2q9
 //!   /   |   \
 //! 7     4     8
 //!
-class Lattice
-{
+class Lattice {
   friend class NodeDesc;
+
 public:
   // constructors and assignment
   // TODO: make more constructors, initializers, and factories
   Lattice() : ni_(0), nj_(0), f_(nullptr), ftemp_(nullptr) {}
-  Lattice(const unsigned ni, const unsigned nj, const double rho = 1.0) 
-    : nx_(ni), ny_(nj),
-      f_(std::make_unique(new double[ni * nj * num_k()])), 
-      ftemp_(std::make_unique(new double[ni * nj * num_k()])),
-      node_descs_(std::vector<AbstractNodeDesc*>(ni * nj)),
-      mem_pool_(SimpleMemPool(max_node_desc_size() * ni * nj))
-    { init_f_(rho); }
-  Lattice(const Lattice&);
-  Lattice& operator=(const Lattice&);
-  Lattice(Lattice&&);
-  Lattice& operator=(Lattice&&);
-  ~Lattice() 
-  { 
-    try 
-    { 
-      for (auto& node_desc : node_descs_) node_desc->::~AbstractNodeDesc(); 
+  Lattice(const unsigned ni, const unsigned nj, const double rho = 1.0)
+      : nx_(ni), ny_(nj), f_(std::make_unique(new double[ni * nj * num_k()])),
+        ftemp_(std::make_unique(new double[ni * nj * num_k()])),
+        node_descs_(std::vector<AbstractNodeDesc *>(ni * nj)),
+        mem_pool_(SimpleMemPool(max_node_desc_size() * ni * nj)) {
+    init_f_(rho);
+  }
+  Lattice(const Lattice &);
+  Lattice &operator=(const Lattice &);
+  Lattice(Lattice &&);
+  Lattice &operator=(Lattice &&);
+  ~Lattice() {
+    try {
+      for (auto &node_desc : node_descs_)
+        node_desc->::~AbstractNodeDesc();
+    } catch (...) {
     }
-    catch(...) {} 
   }
 
   // accessors
-    // static and constant expression values
-  static constexpr double dx() const            { return dx_; }
-  static constexpr double dt() const            { return dt_; }
-  static constexpr double c() const             { return dx_ / dt_; }
-  static constexpr double cs() const            { return c() / sqrt(3.0); }
-  static constexpr double cssq() const          { return cs() * cs(); }
-  inline unsigned num_i() const                 { return ni_; }
-  inline unsigned num_j() const                 { return nj_; }
-  static constexpr unsigned num_k() const       { return 9; }
-  inline const double* pf() const noexcept      { return spf_.get(); }
-  inline double f(unsigned i, unsigned j, unsigned k) const noexcept     
-                                                { return f_(i, j, k); }
-  inline const double* pftemp() const noexcept  { return spftemp_.get(); }
-  inline double ftemp(unsigned i, unsigned j, unsigned k) const noexcept 
-                                                { return ftemp_(i, j, k); }
-  inline const std::vector<std::unique_ptr<NodeDesc>>& node_descs ()
-    const noexcept                              { return node_descs_; }
-  inline const AbstractNodeDesc& node_desc(const unsigned i, const unsigned j) 
-    const { return *(node_descs_[nj_ * i + j]); }
-  inline AbstractNodeDesc& node_desc(const unsigned i, const unsigned j)
-    { return *(node_descs_[nj_ * i + j]); }
-  inline const double* pc(const unsigned k) const noexcept 
-                                                { return (&lat_vecs_[2 * k]); }
-  inline double c(const unsigned k, const unsigned c) const noexcept 
-                                                { return *(pc(k) + c); }
-  inline double w(const unsigned k) const noexcept
-                                                { return w_[k]; }
-    
-  // mutators
-    // stream
-  inline void stream(const unsigned i, const unsigned j) 
-    { node_desc(i, j).stream(*this, i, j); }
-  inline void stream(const unsigned bi, const unsigned ei, const unsigned bj, 
-                     const unsigned ej)
-    { 
-      for (unsigned i = bi; i <= ei; ++i)
-        for (unsigned j = bj; j <= ej; ++j)
-          stream(i, j);
-    }
-  inline void stream() { stream(0, ni_ - 1, 0, nj_ - 1); }
-  void stream(const std::vector<std::array<unsigned, 4>>&);
+  // static and constant expression values
+  static constexpr double dx() const { return dx_; }
+  static constexpr double dt() const { return dt_; }
+  static constexpr double c() const { return dx_ / dt_; }
+  static constexpr double cs() const { return c() / sqrt(3.0); }
+  static constexpr double cssq() const { return cs() * cs(); }
+  inline unsigned num_i() const { return ni_; }
+  inline unsigned num_j() const { return nj_; }
+  static constexpr unsigned num_k() const { return 9; }
+  inline const double *pf() const noexcept { return spf_.get(); }
+  inline double f(unsigned i, unsigned j, unsigned k) const noexcept {
+    return f_(i, j, k);
+  }
+  inline const double *pftemp() const noexcept { return spftemp_.get(); }
+  inline double ftemp(unsigned i, unsigned j, unsigned k) const noexcept {
+    return ftemp_(i, j, k);
+  }
+  inline const std::vector<std::unique_ptr<NodeDesc>> &node_descs() const
+      noexcept {
+    return node_descs_;
+  }
+  inline const AbstractNodeDesc &node_desc(const unsigned i,
+                                           const unsigned j) const {
+    return *(node_descs_[nj_ * i + j]);
+  }
+  inline AbstractNodeDesc &node_desc(const unsigned i, const unsigned j) {
+    return *(node_descs_[nj_ * i + j]);
+  }
+  inline const double *pc(const unsigned k) const noexcept {
+    return (&lat_vecs_[2 * k]);
+  }
+  inline double c(const unsigned k, const unsigned c) const noexcept {
+    return *(pc(k) + c);
+  }
+  inline double w(const unsigned k) const noexcept { return w_[k]; }
 
-    // collide
-  inline void collide_and_bound
-    (IncompFlowMultiscaleMap& mmap, const IncompFlowCollisionManager& cman,
-     const unsigned i, const unsigned j) 
-    { node_desc(i, j).collide_and_bound(*this, mmap, cman, i, j); }
-  void collide_and_bound 
-    (IncompFlowMultiscaleMap& mmap, const IncompFlowCollisionManager& cman,
-     const unsigned bi, const unsigned ei, const unsigned bj, const unsigned ej)
-    { 
-      for (unsigned i = bi; i <= ei; ++i)
-        for (unsigned j = bj; j <= ej; ++j)
-          collide_and_bound(i, j);
-    }
-  inline void collide_and_bound
-    (IncompFlowMultiscaleMap& mmap, const IncompFlowCollisionManager& cman)
-    { collide_and_bound(mmap, cman, 0, ni_ - 1, 0, nj_ - 1); }
-  void collide_and_bound
-    (IncompFlowMultiscaleMap&, const IncompFlowCollisionManager&
-     const std::vector<std::array<unsigned, 4>>&);
+  // mutators
+  // stream
+  inline void stream(const unsigned i, const unsigned j) {
+    node_desc(i, j).stream(*this, i, j);
+  }
+  inline void stream(const unsigned bi, const unsigned ei, const unsigned bj,
+                     const unsigned ej) {
+    for (unsigned i = bi; i <= ei; ++i)
+      for (unsigned j = bj; j <= ej; ++j)
+        stream(i, j);
+  }
+  inline void stream() { stream(0, ni_ - 1, 0, nj_ - 1); }
+  void stream(const std::vector<std::array<unsigned, 4>> &);
+
+  // collide
+  inline void collide_and_bound(IncompFlowMultiscaleMap &mmap,
+                                const IncompFlowCollisionManager &cman,
+                                const unsigned i, const unsigned j) {
+    node_desc(i, j).collide_and_bound(*this, mmap, cman, i, j);
+  }
+  void collide_and_bound(IncompFlowMultiscaleMap &mmap,
+                         const IncompFlowCollisionManager &cman,
+                         const unsigned bi, const unsigned ei,
+                         const unsigned bj, const unsigned ej) {
+    for (unsigned i = bi; i <= ei; ++i)
+      for (unsigned j = bj; j <= ej; ++j)
+        collide_and_bound(i, j);
+  }
+  inline void collide_and_bound(IncompFlowMultiscaleMap &mmap,
+                                const IncompFlowCollisionManager &cman) {
+    collide_and_bound(mmap, cman, 0, ni_ - 1, 0, nj_ - 1);
+  }
+  void collide_and_bound(IncompFlowMultiscaleMap &,
+                         const IncompFlowCollisionManager &const
+                             std::vector<std::array<unsigned, 4>> &);
 
   inline void swap_f_ptrs() { spf_.swap(spftemp_); }
 
   // bounds checking
-  inline bool in_bounds(const unsigned i, const unsigned j) const noexcept 
-    { return (i < ni && i >= 0 && j < nj && j >= 0); }
-  void check_bounds(const unsigned i, const unsigned j) 
-    const throw(std::out_of_range);
+  inline bool in_bounds(const unsigned i, const unsigned j) const noexcept {
+    return (i < ni && i >= 0 && j < nj && j >= 0);
+  }
+  void check_bounds(const unsigned i, const unsigned j) const
+      throw(std::out_of_range);
 
 private:
   static const double[num_k()][2] lat_vecs_;
@@ -156,18 +164,22 @@ private:
   const unsigned nj_;
   std::unique_ptr<double[]> spf_;
   std::unique_ptr<double[]> spftemp_;
-  std::vector<AbstractNodeDesc*> node_descs_;
+  std::vector<AbstractNodeDesc *> node_descs_;
   SimpleMemPool mem_pool_;
 
   // lattice vectors and particle distribution functions
-  inline double* pf_(const unsigned i, const unsigned j) 
-    { return &(spf_[(i*nj_ + j)*num_k()]); }
-  inline double& f_(const unsigned i, const unsigned j, const unsigned k)
-    { return *(pf_(i, j) + k); }
-  inline double* pft_(const unsigned i, const unsigned j) 
-    { return &(spftemp_[(i*nj_ + j)*num_k()]); }
-  inline double& ft_(const unsigned i, const unsigned j, const unsigned k)
-    { return *(pft_(i, j) + k); }
+  inline double *pf_(const unsigned i, const unsigned j) {
+    return &(spf_[(i * nj_ + j) * num_k()]);
+  }
+  inline double &f_(const unsigned i, const unsigned j, const unsigned k) {
+    return *(pf_(i, j) + k);
+  }
+  inline double *pft_(const unsigned i, const unsigned j) {
+    return &(spftemp_[(i * nj_ + j) * num_k()]);
+  }
+  inline double &ft_(const unsigned i, const unsigned j, const unsigned k) {
+    return *(pft_(i, j) + k);
+  }
 
   void init_f_(const double rho);
 };

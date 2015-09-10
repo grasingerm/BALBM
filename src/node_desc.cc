@@ -19,11 +19,9 @@
 #include <exception>
 #include <sstream>
 
-namespace balbm
-{
+namespace balbm {
 
-namespace d2q9
-{
+namespace d2q9 {
 
 //! Virtual destructor definition
 AbstractNodeDesc::~AbstractNodeDesc() {}
@@ -33,9 +31,8 @@ AbstractNodeDesc::~AbstractNodeDesc() {}
 //! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
-inline void AbstractNodeDesc::stream (Lattice& lat, const unsigned i, const unsigned j) 
-  const
-{
+inline void AbstractNodeDesc::stream(Lattice &lat, const unsigned i,
+                                     const unsigned j) const {
 #ifdef BALBM_CHECK_BOUNDS_STREAMING
   stream_with_bcheck_(lat, i, j);
 #else
@@ -46,10 +43,10 @@ inline void AbstractNodeDesc::stream (Lattice& lat, const unsigned i, const unsi
 //! D2Q9 base class collide and bound
 //!
 //! \param
-inline void AbstractNodeDesc::collide_and_bound
-  (Lattice& lat, const CollisionManager& cman, const unsigned i, 
-   const unsigned j) const noexcept
-{
+inline void
+AbstractNodeDesc::collide_and_bound(Lattice &lat, const CollisionManager &cman,
+                                    const unsigned i, const unsigned j) const
+    noexcept {
   collide_and_bound_(lat, cman, i, j);
 }
 
@@ -58,20 +55,18 @@ AbstractNodeActive::~AbstractNodeActive() {}
 
 //! D2Q9 streaming for a typical active node
 //!
-//! \param lat D2Q9 lattice 
+//! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
 //! \TODO should we do bounds checking here?
 //! \TODO should we unroll this loop?
 //! \TODO should this be multithreaded?
-void AbstractNodeActive::stream_(Lattice& lat, const unsigned i, 
-                                 const unsigned j) const
-{
+void AbstractNodeActive::stream_(Lattice &lat, const unsigned i,
+                                 const unsigned j) const {
   const unsigned nk = lat.num_k();
   unsigned i_next, j_next;
 
-  for (unsigned k = 0; k < nk; ++k)
-  {
+  for (unsigned k = 0; k < nk; ++k) {
     j_next = j + lat.c(k, 0);
     i_next = i + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
@@ -82,24 +77,22 @@ void AbstractNodeActive::stream_(Lattice& lat, const unsigned i,
 
 //! D2Q9 streaming for a typical active node with bounds checking
 //!
-//! \param lat D2Q9 lattice 
+//! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
 //! \TODO should we do bounds checking here?
 //! \TODO should we unroll this loop?
 //! \TODO should this be multithreaded?
-void AbstractNodeActive::stream_with_bcheck_(Lattice& lat, const unsigned i, 
-                                             const unsigned j) const
-{
+void AbstractNodeActive::stream_with_bcheck_(Lattice &lat, const unsigned i,
+                                             const unsigned j) const {
   const unsigned nk = lat.num_k();
   unsigned i_next, j_next;
 
-  for (unsigned k = 0; k < nk; ++k)
-  {
+  for (unsigned k = 0; k < nk; ++k) {
     j_next = j + lat.c(k, 0);
     i_next = i + lat.c(k, 1);
 
-    lat.check_bounds(i_next, j_next); 
+    lat.check_bounds(i_next, j_next);
 
     lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
   }
@@ -112,59 +105,54 @@ void AbstractNodeActive::stream_with_bcheck_(Lattice& lat, const unsigned i,
 //! \param mmap Multiscale map
 //! \param i Index in the x-direction
 //! \param j Index in the y-direction
-void AbstractNodeActive::collide_and_bound_
-  (Lattice& lat, IncompFlowMultiscaleMap& mmap, 
-   const IncompFlowCollisionManager& cman, 
-   const unsigned i, const unsigned j) const
-{
+void AbstractNodeActive::collide_and_bound_(
+    Lattice &lat, IncompFlowMultiscaleMap &mmap,
+    const IncompFlowCollisionManager &cman, const unsigned i,
+    const unsigned j) const {
   cman.collide(lat, mmap, i, j);
 }
 
 //! D2Q9 streaming for a west facing node
 //!
-//! \param lat D2Q9 lattice 
+//! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
-void NodeWestFacingWall::stream_(Lattice& lat, const unsigned i, 
-                                 const unsigned j) const noexcept
-{
-  #ifndef NDEBUG
-    const static unsigned stream_directions[] = {2, 3, 4, 6, 7};
-    const static unsigned n = 
-      sizeof(stream_directions) / sizeof(stream_directions[0]); 
-    unsigned k;
+void NodeWestFacingWall::stream_(Lattice &lat, const unsigned i,
+                                 const unsigned j) const noexcept {
+#ifndef NDEBUG
+  const static unsigned stream_directions[] = {2, 3, 4, 6, 7};
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
+  unsigned k;
 
-    for (unsigned i = 0; i < n; ++i)
-    {
-      k = stream_directions[i];
-      j_next = j + lat.c(k, 0);
-      i_next = i + lat.c(k, 1);
-      assert(lat.in_bounds(i_next, j_next));
-    }
-  #endif
+  for (unsigned i = 0; i < n; ++i) {
+    k = stream_directions[i];
+    j_next = j + lat.c(k, 0);
+    i_next = i + lat.c(k, 1);
+    assert(lat.in_bounds(i_next, j_next));
+  }
+#endif
 
-  lat.ft_(i + lat.c(2, 1), j + lat.c(2, 0), 2) = lat.f_(i, j, 2); 
-  lat.ft_(i + lat.c(3, 1), j + lat.c(3, 0), 3) = lat.f_(i, j, 3); 
-  lat.ft_(i + lat.c(4, 1), j + lat.c(4, 0), 4) = lat.f_(i, j, 4); 
-  lat.ft_(i + lat.c(6, 1), j + lat.c(6, 0), 6) = lat.f_(i, j, 6); 
-  lat.ft_(i + lat.c(7, 1), j + lat.c(7, 0), 7) = lat.f_(i, j, 7); 
+  lat.ft_(i + lat.c(2, 1), j + lat.c(2, 0), 2) = lat.f_(i, j, 2);
+  lat.ft_(i + lat.c(3, 1), j + lat.c(3, 0), 3) = lat.f_(i, j, 3);
+  lat.ft_(i + lat.c(4, 1), j + lat.c(4, 0), 4) = lat.f_(i, j, 4);
+  lat.ft_(i + lat.c(6, 1), j + lat.c(6, 0), 6) = lat.f_(i, j, 6);
+  lat.ft_(i + lat.c(7, 1), j + lat.c(7, 0), 7) = lat.f_(i, j, 7);
 }
 
 //! D2Q9 streaming for a west facing node with bounds checking
 //!
-//! \param lat D2Q9 lattice 
+//! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
-void NodeWestFacingWall::stream_with_bcheck_(Lattice& lat, const unsigned i, 
-                                             const unsigned j) const
-{
+void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
+                                             const unsigned j) const {
   const static unsigned stream_directions[] = {2, 3, 4, 6, 7};
-  const static unsigned n = 
-    sizeof(stream_directions) / sizeof(stream_directions[0]); 
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
   unsigned k;
 
-  for (unsigned i = 0; i < n; ++i)
-  {
+  for (unsigned i = 0; i < n; ++i) {
     k = stream_directions[i];
     j_next = j + lat.c(k, 0);
     i_next = i + lat.c(k, 1);
@@ -181,11 +169,10 @@ void NodeWestFacingWall::stream_with_bcheck_(Lattice& lat, const unsigned i,
 //! \param mmap Multiscale map
 //! \param i Index in the x-direction
 //! \param j Index in the y-direction
-void NodeWestFacingWall::collide_and_bound_
-  (Lattice& lat, IncompFlowMultiscaleMap& mmap, 
-   const IncompFlowCollisionManager& cman, 
-   const unsigned i, const unsigned j) const
-{
+void NodeWestFacingWall::collide_and_bound_(
+    Lattice &lat, IncompFlowMultiscaleMap &mmap,
+    const IncompFlowCollisionManager &cman, const unsigned i,
+    const unsigned j) const {
   cman.collide(lat, mmap, i, j);
   lat.f_(i, j, 3) = lat.f_(i, j, 1);
   lat.f_(i, j, 6) = lat.f_(i, j, 8);
@@ -194,49 +181,45 @@ void NodeWestFacingWall::collide_and_bound_
 
 //! D2Q9 streaming for a west facing node
 //!
-//! \param lat D2Q9 lattice 
+//! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
-void NodeSouthFacingWall::stream_(Lattice& lat, const unsigned i, 
-                                  const unsigned j) const noexcept
-{
-  #ifndef NDEBUG
-    const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
-    const static unsigned n = 
-      sizeof(stream_directions) / sizeof(stream_directions[0]); 
-    unsigned k;
+void NodeSouthFacingWall::stream_(Lattice &lat, const unsigned i,
+                                  const unsigned j) const noexcept {
+#ifndef NDEBUG
+  const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
+  unsigned k;
 
-    for (unsigned i = 0; i < n; ++i)
-    {
-      k = stream_directions[i];
-      j_next = j + lat.c(k, 0);
-      i_next = i + lat.c(k, 1);
-      assert(lat.in_bounds(i_next, j_next));
-    }
-  #endif
+  for (unsigned i = 0; i < n; ++i) {
+    k = stream_directions[i];
+    j_next = j + lat.c(k, 0);
+    i_next = i + lat.c(k, 1);
+    assert(lat.in_bounds(i_next, j_next));
+  }
+#endif
 
-  lat.ft_(i + lat.c(1, 1), j + lat.c(1, 0), 1) = lat.f_(i, j, 1); 
-  lat.ft_(i + lat.c(3, 1), j + lat.c(3, 0), 3) = lat.f_(i, j, 3); 
-  lat.ft_(i + lat.c(4, 1), j + lat.c(4, 0), 4) = lat.f_(i, j, 4); 
-  lat.ft_(i + lat.c(7, 1), j + lat.c(7, 0), 7) = lat.f_(i, j, 7); 
-  lat.ft_(i + lat.c(8, 1), j + lat.c(8, 0), 8) = lat.f_(i, j, 8); 
+  lat.ft_(i + lat.c(1, 1), j + lat.c(1, 0), 1) = lat.f_(i, j, 1);
+  lat.ft_(i + lat.c(3, 1), j + lat.c(3, 0), 3) = lat.f_(i, j, 3);
+  lat.ft_(i + lat.c(4, 1), j + lat.c(4, 0), 4) = lat.f_(i, j, 4);
+  lat.ft_(i + lat.c(7, 1), j + lat.c(7, 0), 7) = lat.f_(i, j, 7);
+  lat.ft_(i + lat.c(8, 1), j + lat.c(8, 0), 8) = lat.f_(i, j, 8);
 }
 
 //! D2Q9 streaming for a west facing node with bounds checking
 //!
-//! \param lat D2Q9 lattice 
+//! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
-void NodeWestFacingWall::stream_with_bcheck_(Lattice& lat, const unsigned i, 
-                                             const unsigned j) const
-{
+void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
+                                             const unsigned j) const {
   const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
-  const static unsigned n = 
-    sizeof(stream_directions) / sizeof(stream_directions[0]); 
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
   unsigned k;
 
-  for (unsigned i = 0; i < n; ++i)
-  {
+  for (unsigned i = 0; i < n; ++i) {
     k = stream_directions[i];
     j_next = j + lat.c(k, 0);
     i_next = i + lat.c(k, 1);
@@ -253,11 +236,10 @@ void NodeWestFacingWall::stream_with_bcheck_(Lattice& lat, const unsigned i,
 //! \param mmap Multiscale map
 //! \param i Index in the x-direction
 //! \param j Index in the y-direction
-void NodeWestFacingWall::collide_and_bound_
-  (Lattice& lat, IncompFlowMultiscaleMap& mmap, 
-   const IncompFlowCollisionManager& cman, 
-   const unsigned i, const unsigned j) const
-{
+void NodeWestFacingWall::collide_and_bound_(
+    Lattice &lat, IncompFlowMultiscaleMap &mmap,
+    const IncompFlowCollisionManager &cman, const unsigned i,
+    const unsigned j) const {
   cman.collide(lat, mmap, i, j);
   lat.f_(i, j, 4) = lat.f_(i, j, 2);
   lat.f_(i, j, 7) = lat.f_(i, j, 5);
