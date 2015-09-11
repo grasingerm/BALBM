@@ -38,7 +38,8 @@ IncompFlowSimulation::IncompFlowSimulation(
     AbstractIncompFlowEqFunct *pfeq, AbstractConstitutiveEq *pconstiteq,
     AbstractForce *pforce, std::vector<AbstractSimCallback *> *pscbs = nullptr)
     : AbstractSimulation(), lat_(Lattice(ni, nj, rho)),
-      mmap_(IncompFlowMultiscaleMap(ni, nj, mu)),
+      mmap_(IncompFlowMultiscaleMap(ni, nj, 
+            mu_to_omega(mu, lat.cssq(), lat.dt())),
       cman_(pfeq, pconstiteq, pforce),
       spscbs_(std::unique_ptr<std::vector<AbstractSimCallback *>>(pscbs)) {}
 
@@ -68,6 +69,9 @@ unsigned IncompFlowSimulation::simulate_() {
   lat_.stream();
   lat_.swap_f_ptrs();
   lat_.collide_and_bound(mmap_, cman_);
+  if (spscbs_)
+    for (const auto &cb : *spscbs_)
+      cb(*this);
   ++step_;
   return 1;
 }

@@ -16,7 +16,6 @@
 
 #include "node_desc.hh"
 #include <cassert>
-#include <exception>
 #include <sstream>
 
 namespace balbm {
@@ -42,12 +41,17 @@ inline void AbstractNodeDesc::stream(Lattice &lat, const unsigned i,
 
 //! D2Q9 base class collide and bound
 //!
-//! \param
+//! \param lat Lattice
+//! \param mmap Incompressible flow multiscale map
+//! \param cman Collision manager
+//! \param i Index of node in the y-direction
+//! \param j Index of node in the x-direction
 inline void
-AbstractNodeDesc::collide_and_bound(Lattice &lat, const CollisionManager &cman,
-                                    const unsigned i, const unsigned j) const
-    noexcept {
-  collide_and_bound_(lat, cman, i, j);
+AbstractNodeDesc::collide_and_bound_(Lattice &lat,
+                                     IncompFlowMultiscaleMap &mmap,
+                                     const IncompFlowCollisionManager &cman,
+                                     const unsigned i, const unsigned j) const {
+  collide_and_bound_(lat, mmap, cman, i, j);
 }
 
 //! Virtual destructor definition
@@ -67,8 +71,8 @@ void AbstractNodeActive::stream_(Lattice &lat, const unsigned i,
   unsigned i_next, j_next;
 
   for (unsigned k = 0; k < nk; ++k) {
-    j_next = j + lat.c(k, 0);
-    i_next = i + lat.c(k, 1);
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
 
     lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
@@ -89,8 +93,8 @@ void AbstractNodeActive::stream_with_bcheck_(Lattice &lat, const unsigned i,
   unsigned i_next, j_next;
 
   for (unsigned k = 0; k < nk; ++k) {
-    j_next = j + lat.c(k, 0);
-    i_next = i + lat.c(k, 1);
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
 
     lat.check_bounds(i_next, j_next);
 
@@ -127,17 +131,17 @@ void NodeWestFacingWall::stream_(Lattice &lat, const unsigned i,
 
   for (unsigned i = 0; i < n; ++i) {
     k = stream_directions[i];
-    j_next = j + lat.c(k, 0);
-    i_next = i + lat.c(k, 1);
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
   }
 #endif
 
-  lat.ft_(i + lat.c(2, 1), j + lat.c(2, 0), 2) = lat.f_(i, j, 2);
-  lat.ft_(i + lat.c(3, 1), j + lat.c(3, 0), 3) = lat.f_(i, j, 3);
-  lat.ft_(i + lat.c(4, 1), j + lat.c(4, 0), 4) = lat.f_(i, j, 4);
-  lat.ft_(i + lat.c(6, 1), j + lat.c(6, 0), 6) = lat.f_(i, j, 6);
-  lat.ft_(i + lat.c(7, 1), j + lat.c(7, 0), 7) = lat.f_(i, j, 7);
+  lat.ft_(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f_(i, j, 2);
+  lat.ft_(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f_(i, j, 3);
+  lat.ft_(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f_(i, j, 4);
+  lat.ft_(i + lat.c(6, 0), j + lat.c(6, 1), 6) = lat.f_(i, j, 6);
+  lat.ft_(i + lat.c(7, 0), j + lat.c(7, 1), 7) = lat.f_(i, j, 7);
 }
 
 //! D2Q9 streaming for a west facing node with bounds checking
@@ -154,8 +158,8 @@ void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
 
   for (unsigned i = 0; i < n; ++i) {
     k = stream_directions[i];
-    j_next = j + lat.c(k, 0);
-    i_next = i + lat.c(k, 1);
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
 
     lat.check_bound(i_next, j_next);
     lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
@@ -179,7 +183,7 @@ void NodeWestFacingWall::collide_and_bound_(
   lat.f_(i, j, 7) = lat.f_(i, j, 5);
 }
 
-//! D2Q9 streaming for a west facing node
+//! D2Q9 streaming for a south facing node
 //!
 //! \param lat D2Q9 lattice
 //! \param i y-coord of node
@@ -194,26 +198,26 @@ void NodeSouthFacingWall::stream_(Lattice &lat, const unsigned i,
 
   for (unsigned i = 0; i < n; ++i) {
     k = stream_directions[i];
-    j_next = j + lat.c(k, 0);
-    i_next = i + lat.c(k, 1);
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
   }
 #endif
 
-  lat.ft_(i + lat.c(1, 1), j + lat.c(1, 0), 1) = lat.f_(i, j, 1);
-  lat.ft_(i + lat.c(3, 1), j + lat.c(3, 0), 3) = lat.f_(i, j, 3);
-  lat.ft_(i + lat.c(4, 1), j + lat.c(4, 0), 4) = lat.f_(i, j, 4);
-  lat.ft_(i + lat.c(7, 1), j + lat.c(7, 0), 7) = lat.f_(i, j, 7);
-  lat.ft_(i + lat.c(8, 1), j + lat.c(8, 0), 8) = lat.f_(i, j, 8);
+  lat.ft_(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f_(i, j, 1);
+  lat.ft_(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f_(i, j, 3);
+  lat.ft_(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f_(i, j, 4);
+  lat.ft_(i + lat.c(7, 0), j + lat.c(7, 1), 7) = lat.f_(i, j, 7);
+  lat.ft_(i + lat.c(8, 0), j + lat.c(8, 1), 8) = lat.f_(i, j, 8);
 }
 
-//! D2Q9 streaming for a west facing node with bounds checking
+//! D2Q9 streaming for a south facing node with bounds checking
 //!
 //! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
-void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
-                                             const unsigned j) const {
+void NodeSouthFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
+                                              const unsigned j) const {
   const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
@@ -221,8 +225,8 @@ void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
 
   for (unsigned i = 0; i < n; ++i) {
     k = stream_directions[i];
-    j_next = j + lat.c(k, 0);
-    i_next = i + lat.c(k, 1);
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
 
     lat.check_bound(i_next, j_next);
     lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
@@ -236,7 +240,7 @@ void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
 //! \param mmap Multiscale map
 //! \param i Index in the x-direction
 //! \param j Index in the y-direction
-void NodeWestFacingWall::collide_and_bound_(
+void NodeSouthFacingWall::collide_and_bound_(
     Lattice &lat, IncompFlowMultiscaleMap &mmap,
     const IncompFlowCollisionManager &cman, const unsigned i,
     const unsigned j) const {
@@ -244,6 +248,177 @@ void NodeWestFacingWall::collide_and_bound_(
   lat.f_(i, j, 4) = lat.f_(i, j, 2);
   lat.f_(i, j, 7) = lat.f_(i, j, 5);
   lat.f_(i, j, 8) = lat.f_(i, j, 6);
+}
+
+//! D2Q9 streaming for a east facing node
+//!
+//! \param lat D2Q9 lattice
+//! \param i y-coord of node
+//! \param j x-coord of node
+void NodeEastFacingWall::stream_(Lattice &lat, const unsigned i,
+                                 const unsigned j) const noexcept {
+#ifndef NDEBUG
+  const static unsigned stream_directions[] = {1, 2, 4, 5, 8};
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
+  unsigned k;
+
+  for (unsigned i = 0; i < n; ++i) {
+    k = stream_directions[i];
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
+    assert(lat.in_bounds(i_next, j_next));
+  }
+#endif
+
+  lat.ft_(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f_(i, j, 1);
+  lat.ft_(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f_(i, j, 2);
+  lat.ft_(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f_(i, j, 4);
+  lat.ft_(i + lat.c(5, 0), j + lat.c(5, 1), 5) = lat.f_(i, j, 5);
+  lat.ft_(i + lat.c(8, 0), j + lat.c(8, 1), 8) = lat.f_(i, j, 8);
+}
+
+//! D2Q9 streaming for a east facing node with bounds checking
+//!
+//! \param lat D2Q9 lattice
+//! \param i y-coord of node
+//! \param j x-coord of node
+void NodeEastFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
+                                             const unsigned j) const {
+  const static unsigned stream_directions[] = {1, 2, 4, 5, 8};
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
+  unsigned k;
+
+  for (unsigned i = 0; i < n; ++i) {
+    k = stream_directions[i];
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
+
+    lat.check_bound(i_next, j_next);
+    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+  }
+}
+
+//! Forward collision call to collision manager then enforce no slip BC
+//!
+//! \param lat Lattice
+//! \param cman Collision manager
+//! \param mmap Multiscale map
+//! \param i Index in the x-direction
+//! \param j Index in the y-direction
+void NodeEastFacingWall::collide_and_bound_(
+    Lattice &lat, IncompFlowMultiscaleMap &mmap,
+    const IncompFlowCollisionManager &cman, const unsigned i,
+    const unsigned j) const {
+  cman.collide(lat, mmap, i, j);
+  lat.f_(i, j, 1) = lat.f_(i, j, 3);
+  lat.f_(i, j, 5) = lat.f_(i, j, 7);
+  lat.f_(i, j, 8) = lat.f_(i, j, 6);
+}
+
+// TODO: prob micro-opt, BUT what-if we skip all 0 for streaming???
+
+//! D2Q9 streaming for a north facing node
+//!
+//! \param lat D2Q9 lattice
+//! \param i x-coord of node
+//! \param j y-coord of node
+void NodeNorthFacingWall::stream_(Lattice &lat, const unsigned i,
+                                  const unsigned j) const noexcept {
+#ifndef NDEBUG
+  const static unsigned stream_directions[] = {1, 2, 3, 5, 6};
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
+  unsigned k;
+
+  for (unsigned i = 0; i < n; ++i) {
+    k = stream_directions[i];
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
+    assert(lat.in_bounds(i_next, j_next));
+  }
+#endif
+
+  lat.ft_(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f_(i, j, 1);
+  lat.ft_(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f_(i, j, 2);
+  lat.ft_(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f_(i, j, 3);
+  lat.ft_(i + lat.c(5, 0), j + lat.c(5, 1), 5) = lat.f_(i, j, 5);
+  lat.ft_(i + lat.c(6, 0), j + lat.c(6, 1), 6) = lat.f_(i, j, 6);
+}
+
+//! D2Q9 streaming for a north facing node with bounds checking
+//!
+//! \param lat D2Q9 lattice
+//! \param i x-coord of node
+//! \param j y-coord of node
+void NodeNorthFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
+                                              const unsigned j) const {
+  const static unsigned stream_directions[] = {1, 2, 3, 5, 6};
+  const static unsigned n =
+      sizeof(stream_directions) / sizeof(stream_directions[0]);
+  unsigned k;
+
+  for (unsigned i = 0; i < n; ++i) {
+    k = stream_directions[i];
+    i_next = i + lat.c(k, 0);
+    j_next = j + lat.c(k, 1);
+
+    lat.check_bound(i_next, j_next);
+    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+  }
+}
+
+//! Forward collision call to collision manager then enforce no slip BC
+//!
+//! \param lat Lattice
+//! \param cman Collision manager
+//! \param mmap Multiscale map
+//! \param i Index in the x-direction
+//! \param j Index in the y-direction
+void NodeNorthFacingWall::collide_and_bound_(
+    Lattice &lat, IncompFlowMultiscaleMap &mmap,
+    const IncompFlowCollisionManager &cman, const unsigned i,
+    const unsigned j) const {
+  cman.collide(lat, mmap, i, j);
+  lat.f_(i, j, 2) = lat.f_(i, j, 4);
+  lat.f_(i, j, 5) = lat.f_(i, j, 7);
+  lat.f_(i, j, 6) = lat.f_(i, j, 8);
+}
+
+//! Constructor for periodic boundary condition node
+//!
+//! \param i_next Index in x-direction of node to copy particle distributions to
+//! \param j_next Index in y-direction of node to copy particle distributions to
+//! \param ks Array of indexes for lattice directions to be copied
+//! \param nk Number of elements in ks
+//! \return Periodic boundary condition node descriptor
+NodePeriodic::NodePeriodic(const unsigned i_next, const unsigned j_next, 
+                           const unsigned* ks, const unsigned nk)
+    : i_next_(i_next), j_next_(j_next), 
+      ks_(std::unique_ptr<unsigned[]>(new unsigned[ks]), nk_(nk) {
+  assert(nk >= 0 && nk <= 9); // TODO: consider turning this into a throw
+  for (unsigned k = 0; k < nk; ++k) {
+    assert(ks[k] < 9 && ks[k] >= 0);
+    ks_[k] = ks[k];
+  }
+}
+
+//! Forward collision call to collision manager then enforce periodic BC
+//!
+//! \param lat Lattice
+//! \param cman Collision manager
+//! \param mmap Multiscale map
+//! \param i Index in the x-direction
+//! \param j Index in the y-direction
+void NodePeriodic::collide_and_bound_(
+    Lattice &lat, IncompFlowMultiscaleMap &mmap,
+    const IncompFlowCollisionManager &cman, const unsigned i,
+    const unsigned j) const {
+  cman.collide(lat, mmap, i, j);
+  assert(lat.inbounds(i_next_, j_next_)); // TODO: throw?
+  for (unsigned k = 0; k < nk_; ++k)
+    lat.f_(i_next_, j_next_, k) = lat.f_(i, j, k);
 }
 
 } // namespace d2q9

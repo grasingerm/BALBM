@@ -56,13 +56,8 @@ class IncompFlowCollisionManager {
 public:
   ~IncompFlowCollisionManager() {}
   IncompFlowCollisionManager(const AbstractIncompFlowEqFnct *aef,
-                             const AbstractConsitutiveEq *ace)
-      : pfeq_(std::unique_ptr<AbstractIncompFlowEqFnct>(aef)),
-        pconstiteq_(std::unique_ptr<AbstractConstitutiveEq>(ace)),
-        pextforce_(nullptr) {}
-  IncompFlowCollisionManager(const AbstractIncompFlowEqFnct *aef,
                              const AbstractConsitutiveEq *ace,
-                             const AbstractForce *af)
+                             const AbstractForce *af = nullptr)
       : pfeq_(std::unique_ptr<AbstractIncompFlowEqFnct>(aef)),
         pconstiteq_(std::unique_ptr<AbstractConstitutiveEq>(ace)),
         pextforce_(std::unique_ptr<AbstractForce>(af)) {}

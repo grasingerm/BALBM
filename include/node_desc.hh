@@ -17,6 +17,10 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+// Q: why wrap collide and bound into a single virtual function?
+// A: because whether or not a collision occurs at a node is part of its BC.
+//    AND because this only requires one vtable lookup instead of two
+
 #include "balbm_config.hh"
 #include <algorithm>
 
@@ -33,8 +37,9 @@ namespace d2q9 {
 class AbstractNodeDesc {
 public:
   inline void stream(Lattice &, const unsigned, const unsigned) const;
-  inline void collide_and_bound(Lattice &, const CollisionManager &,
-                                const unsigned, const unsigned) const noexcept;
+  inline void collide_and_bound(Lattice &, IncompFlowMultiscaleMap &,
+                                const IncompFlowCollisionManager &,
+                                const unsigned, const unsigned) const;
   virtual ~NodeDesc() = 0;
 
 private:
@@ -163,12 +168,34 @@ private:
                           const unsigned) const;
 };
 
+//! \class Periodic boundary condition
+//!
+//! \brief Implements a periodic boundary condition
+class NodePeriodic : public AbstractNodeActive {
+public:
+  ~NodePeriodic() {}
+  NodePeriodic(const unsigned i_next, const unsigned j_next, const unsigned* ks,
+               const unsigned nk)
+    : i_next_(i_next), j_next_(j_next), 
+      ks_(std::unique_ptr<unsigned[]>(new unsigned[ks]), nk_(nk) {}
+
+private:
+  void collide_and_bound_(Lattice &, IncompFlowMultiscaleMap &,
+                          const IncompFlowCollisionManager &, const unsigned,
+                          const unsigned) const;
+  unsigned i_next_;
+  unsigned j_next_;
+  std::unique_ptr<unsigned[]> ks_;
+  unsigned nk_;
+};
+
 //! Constant expression for maximum node descriptor size
 //!
 //! \return Maximum node descriptor size
 constexpr std::size_t max_node_desc_size() {
-  return std::max({NodeActive, NodeWestFacingWall, NodeSouthFacingWall,
-                   NodeEastFacingWall, NodeNorthFacingWall});
+  return std::max({sizeof(NodeActive), sizeof(NodeWestFacingWall),
+                   sizeof(NodeSouthFacingWall), sizeof(NodeEastFacingWall),
+                   sizeof(NodeNorthFacingWall)});
 }
 
 } // namespace d2q9

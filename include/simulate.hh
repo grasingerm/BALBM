@@ -17,7 +17,7 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#include "callbacks.hh"
+#include "callback.hh"
 #include "collision_manager.hh"
 #include "lattice.hh"
 #include "multiscale_map.hh"
@@ -58,7 +58,12 @@ public:
   IncompFlowSimulation(const unsigned, const unsigned, const double,
                        const double, AbstractIncompFlowEqFunct *,
                        AbstractConstitutiveEq *, AbstractForce *,
-                       std::vector<AbstractSimCallback *> *);
+                       std::vector<AbstractSimCallback *> * = nullptr);
+  inline const IncompFlowMultiscaleMap &multiscale_map() const { return mmap_; }
+  template <typename Node, typename... Args>
+  inline void set_node_desc(unsigned i, unsigned j, Args... args) {
+    lat_.set_node_desc<Node>(i, j, args...);
+  }
 
 private:
   unsigned simulate_(const unsigned);

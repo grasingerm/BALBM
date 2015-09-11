@@ -70,8 +70,8 @@ protected:
   virtual void map_to_macro_(const Lattice &, const unsigned, const unsigned);
 
 private:
-  unsigned nx_;
-  unsigned ny_;
+  unsigned ni_;
+  unsigned nj_;
   std::unique_ptr<double[]> sprho_;
 };
 

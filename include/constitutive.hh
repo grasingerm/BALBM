@@ -58,7 +58,7 @@ public:
 private:
   const double cmu_;
   double mu_(const Lattice &, const AbstractMultiscaleMap &, const arma::vec &,
-             const unsigned, const unsigned);
+             const unsigned, const unsigned) const;
 };
 
 //! \class BinghamConstitutiveEq

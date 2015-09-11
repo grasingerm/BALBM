@@ -18,12 +18,15 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 // TODO: consider using a different data structure for 2D and 3D arrays
+// TODO: consider overloading [] for indexing???
 
 #include "balbm_config.hh"
 #include "helpers/mem_helpers.hh"
+#include "node_desc.hh"
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <exception>
 #include <memory>
 #include <vector>
 
@@ -48,7 +51,7 @@ namespace d2q9 {
 //! 7     4     8
 //!
 class Lattice {
-  friend class NodeDesc;
+  friend class AbstractNodeDesc;
 
 public:
   // constructors and assignment
@@ -99,8 +102,15 @@ public:
                                            const unsigned j) const {
     return *(node_descs_[nj_ * i + j]);
   }
-  inline AbstractNodeDesc &node_desc(const unsigned i, const unsigned j) {
-    return *(node_descs_[nj_ * i + j]);
+  template <typename Node, typename... Args>
+  inline void set_node_desc(const unsigned i, const unsigned j, Args... args) {
+#ifndef NDEBUG
+    AbstractNodeDesc *pnd = mem_pool_.allocate<Node>(args...);
+    assert(pnd != nullptr);
+    node_descs_[nj_ * i + j] = pnd;
+#else
+    node_descs_[nj_ * i + j] = mem_pool_.allocate<Node>(args...);
+#endif
   }
   inline const double *pc(const unsigned k) const noexcept {
     return (&lat_vecs_[2 * k]);
@@ -152,8 +162,10 @@ public:
   inline bool in_bounds(const unsigned i, const unsigned j) const noexcept {
     return (i < ni && i >= 0 && j < nj && j >= 0);
   }
-  void check_bounds(const unsigned i, const unsigned j) const
+  void check_bounds(const unsigned i, const unsigned j) const {
+    if (!in_bounds(i, j))
       throw(std::out_of_range);
+  }
 
 private:
   static const double[num_k()][2] lat_vecs_;

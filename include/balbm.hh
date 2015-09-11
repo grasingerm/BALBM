@@ -18,6 +18,7 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "balbm_config.hh"
+#include "callback.hh"
 #include "collision_manager.hh"
 #include "constitutive.hh"
 #include "equilibrium.hh"

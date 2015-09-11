@@ -1,5 +1,5 @@
-#ifndef SIMULATE_HH
-#define SIMULATE_HH
+#ifndef CALLBACK_HH
+#define CALLBACK_HH
 
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
@@ -17,10 +17,29 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+#include "balbm_config.hh"
+#include "lattice.hh"
+#include "multiscale_map.hh"
+#include "simulate.hh"
+
 namespace balbm {
 
-namespace d2q9 {} // namespace d2q9
+namespace d2q9 {
+
+//! \class AbstractSimCallback
+//!
+//! \brief Base class for simulation callbacks
+class AbstractSimCallback {
+public:
+  virtual ~AbstractSimCallback() = 0;
+  inline void operator()(AbstractSimulation &sim) const { f_(sim); }
+
+private:
+  virtual void f_(AbstractSimulation &sim) = 0;
+};
+
+} // namespace d2q9
 
 } // namespace balbm
 
-#endif // SIMULATE_HH
+#endif // CALLBACK_HH

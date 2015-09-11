@@ -39,7 +39,7 @@ AbstractMultiscaleMap::map_to_macro_(const Lattice &lat) {
 //! \param j y-coord of node
 void AbstractMultiscaleMap::map_to_macro_(const Lattice &lat, const unsigned i,
                                           const unsigned j) {
-  const nk = lat.num_k();
+  const unsigned nk = lat.num_k();
   rho_(i, j) = 0.;
   for (unsigned k = 0; i < nk; ++k)
     rho_(i, j) += lat.f(i, j, k);
@@ -54,15 +54,17 @@ void AbstractMultiscaleMap::map_to_macro_(const Lattice &lat, const unsigned i,
 void IncompFlowMultiscaleMap::map_to_macro_(const Lattice &lat,
                                             const unsigned i,
                                             const unsigned j) {
-  const nk = lat.num_k();
+  const unsigned nk = lat.num_k();
   rho_(i, j) = 0.;
   u_(i, j, 0) = 0.;
   u_(i, j, 1) = 0.;
 
+  double fijk;
   for (unsigned k = 0; k < nk; ++k) {
-    rho_(i, j) += lat.f(i, j, k);
-    u_(i, j, 0) += lat.k(k, 0);
-    u_(i, j, 1) += lat.k(k, 1);
+    fijk = lat.f(i, j k);
+    rho_(i, j) += fijk;
+    u_(i, j, 0) += fijk * lat.k(k, 0);
+    u_(i, j, 1) += fijk * lat.k(k, 1);
   }
 }
 
