@@ -25,6 +25,7 @@
 #include "node_desc.hh"
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <exception>
 #include <memory>
@@ -56,10 +57,11 @@ class Lattice {
 public:
   // constructors and assignment
   // TODO: make more constructors, initializers, and factories
-  Lattice() : ni_(0), nj_(0), f_(nullptr), ftemp_(nullptr) {}
+  Lattice() : ni_(0), nj_(0), spf_(nullptr), spftemp_(nullptr) {}
   Lattice(const unsigned ni, const unsigned nj, const double rho = 1.0)
-      : nx_(ni), ny_(nj), f_(std::make_unique(new double[ni * nj * num_k()])),
-        ftemp_(std::make_unique(new double[ni * nj * num_k()])),
+      : ni_(ni), nj_(nj),
+        spf_(std::unique_ptr<double[]>(new double[ni * nj * num_k()])),
+        spftemp_(std::unique_ptr<double[]>(new double[ni * nj * num_k()])),
         node_descs_(std::vector<AbstractNodeDesc *>(ni * nj)),
         mem_pool_(SimpleMemPool(max_node_desc_size() * ni * nj)) {
     init_f_(rho);
@@ -78,24 +80,23 @@ public:
 
   // accessors
   // static and constant expression values
-  static constexpr double dx() const { return dx_; }
-  static constexpr double dt() const { return dt_; }
-  static constexpr double c() const { return dx_ / dt_; }
-  static constexpr double cs() const { return c() / sqrt(3.0); }
-  static constexpr double cssq() const { return cs() * cs(); }
+  static constexpr double dx() { return 1.0; }
+  static constexpr double dt() { return 1.0; }
+  static constexpr double c() { return dx() / dt(); }
+  static constexpr double cs() { return c() / sqrt(3.0); }
+  static constexpr double cssq() { return cs() * cs(); }
   inline unsigned num_i() const { return ni_; }
   inline unsigned num_j() const { return nj_; }
-  static constexpr unsigned num_k() const { return 9; }
+  static constexpr unsigned num_k() { return 9; }
   inline const double *pf() const noexcept { return spf_.get(); }
   inline double f(unsigned i, unsigned j, unsigned k) const noexcept {
-    return f_(i, j, k);
+    return spf_[ni_ * (i * nj_ + j) + k];
   }
   inline const double *pftemp() const noexcept { return spftemp_.get(); }
   inline double ftemp(unsigned i, unsigned j, unsigned k) const noexcept {
-    return ftemp_(i, j, k);
+    return spftemp_[ni_ * (i * nj_ + j) + k];
   }
-  inline const std::vector<std::unique_ptr<NodeDesc>> &node_descs() const
-      noexcept {
+  inline const std::vector<AbstractNodeDesc *> &node_descs() const noexcept {
     return node_descs_;
   }
   inline const AbstractNodeDesc &node_desc(const unsigned i,
@@ -146,32 +147,35 @@ public:
                          const unsigned bj, const unsigned ej) {
     for (unsigned i = bi; i <= ei; ++i)
       for (unsigned j = bj; j <= ej; ++j)
-        collide_and_bound(i, j);
+        collide_and_bound(mmap, cman, i, j);
   }
   inline void collide_and_bound(IncompFlowMultiscaleMap &mmap,
                                 const IncompFlowCollisionManager &cman) {
     collide_and_bound(mmap, cman, 0, ni_ - 1, 0, nj_ - 1);
   }
   void collide_and_bound(IncompFlowMultiscaleMap &,
-                         const IncompFlowCollisionManager &const
-                             std::vector<std::array<unsigned, 4>> &);
+                         const IncompFlowCollisionManager &,
+                         const std::vector<std::array<unsigned, 4>> &);
 
   inline void swap_f_ptrs() { spf_.swap(spftemp_); }
 
   // bounds checking
-  inline bool in_bounds(const unsigned i, const unsigned j) const noexcept {
-    return (i < ni && i >= 0 && j < nj && j >= 0);
+  inline bool in_bounds(const int i, const int j) const noexcept {
+    return (i < ni_ && i >= 0 && j < nj_ && j >= 0);
   }
   void check_bounds(const unsigned i, const unsigned j) const {
-    if (!in_bounds(i, j))
-      throw(std::out_of_range);
+    if (!in_bounds(i, j)) {
+      std::ostringstream os;
+      os << "(i, j) = (" << i << ", " << j
+         << ") is out of bounds. Check "
+            "boundary conditions to ensure they are well-defined.";
+      throw(std::out_of_range(os.str()));
+    }
   }
 
 private:
-  static const double[num_k()][2] lat_vecs_;
-  static const double[num_k()] w_;
-  static const double dx_;
-  static const double dt_;
+  static const double lat_vecs_[Lattice::num_k()][2];
+  static const double w_[Lattice::num_k()];
   const unsigned ni_;
   const unsigned nj_;
   std::unique_ptr<double[]> spf_;
@@ -193,7 +197,7 @@ private:
     return *(pft_(i, j) + k);
   }
 
-  void init_f_(const double rho);
+  void init_f_(const double);
 };
 
 } // namespace d2q9

@@ -1,0 +1,4 @@
+clean up interfaces:
+  - move inline functions outside of class definition
+  - rethink unnecessary virtuality
+

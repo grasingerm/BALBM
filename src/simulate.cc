@@ -71,7 +71,7 @@ unsigned IncompFlowSimulation::simulate_() {
   lat_.collide_and_bound(mmap_, cman_);
   if (spscbs_)
     for (const auto &cb : *spscbs_)
-      cb(*this);
+      (*cb)(*this);
   ++step_;
   return 1;
 }

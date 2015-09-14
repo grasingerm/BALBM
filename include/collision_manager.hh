@@ -18,13 +18,16 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "balbm_config.hh"
-#include "constitutive.hh"
-#include "lattice.hh"
 #include <memory>
 
 namespace balbm {
 
 namespace d2q9 {
+
+class Lattice;
+class AbstractIncompFlowEqFunct;
+class AbstractConstitutiveEq;
+class AbstractForce;
 
 // TODO: consider making better use of return value optimization
 // TODO: all customizability may come from composition.
@@ -41,7 +44,7 @@ public:
   virtual ~AbstractCollisionManager() = 0;
   inline void collide(Lattice &lat, AbstractMultiscaleMap &mmap,
                       const unsigned i, const unsigned j) const {
-    return collide_(lat, mmp, i, j);
+    return collide_(lat, mmap, i, j);
   }
 
 private:
@@ -65,7 +68,7 @@ public:
                 const unsigned) const;
 
 private:
-  std::unique_ptr<AbstractEquilibriumFnct> pfeq_;
+  std::unique_ptr<AbstractIncompFlowEqFnct> pfeq_;
   std::unique_ptr<AbstractConstitutiveEq> pconstiteq_;
   std::unique_ptr<AbstractForce> pextforce_;
 };

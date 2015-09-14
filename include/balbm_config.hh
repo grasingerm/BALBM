@@ -32,7 +32,7 @@
 //#define ARMA_USE_HDF5
 
 namespace balbm {
-constexpr std::string VERSION("0.0.1");
+const static char *VERSION = "0.0.1";
 }
 
 #endif // BALBM_CONFIG_HH

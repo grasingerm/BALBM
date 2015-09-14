@@ -51,9 +51,9 @@ inline double mu_to_omega(const double mu, const double cssq, const double dt) {
 //! Maps particle distributions to macroscopic variables of interest
 class AbstractMultiscaleMap {
 public:
-  AbstractMultiscaleMap(const unsigned nx, const unsigned ny)
-      : ni_(ni), nj_(nj), rho_(std::unique_ptr<double[]>(new double[nx * ny])) {
-  }
+  AbstractMultiscaleMap(const unsigned ni, const unsigned nj)
+      : ni_(ni), nj_(nj),
+        sprho_(std::unique_ptr<double[]>(new double[ni * nj])) {}
   virtual ~AbstractMultiscaleMap() = 0;
   inline double num_i() const noexcept { return ni_; }
   inline double num_j() const noexcept { return nj_; }
@@ -121,7 +121,7 @@ private:
     return spu_[2 * (i * num_j() + j) + c];
   }
   void map_to_macro_(const Lattice &, const unsigned, const unsigned);
-  void init_();
+  void init_(const double);
   std::unique_ptr<double[]> spu_;
   std::unique_ptr<double[]> spomega_;
 };

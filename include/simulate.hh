@@ -58,7 +58,7 @@ public:
   IncompFlowSimulation(const unsigned, const unsigned, const double,
                        const double, AbstractIncompFlowEqFunct *,
                        AbstractConstitutiveEq *, AbstractForce *,
-                       std::vector<AbstractSimCallback *> * = nullptr);
+                       std::vector<AbstractSimCallback *> *);
   inline const IncompFlowMultiscaleMap &multiscale_map() const { return mmap_; }
   template <typename Node, typename... Args>
   inline void set_node_desc(unsigned i, unsigned j, Args... args) {

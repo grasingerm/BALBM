@@ -72,14 +72,14 @@ void IncompFlowMultiscaleMap::map_to_macro_(const Lattice &lat,
 //!
 //! \param omega Initial collision frequency
 void IncompFlowMultiscaleMap::init_(const double omega) {
-  const unsigned nx = num_x();
-  const unsigned ny = num_y();
+  const unsigned ni = num_i();
+  const unsigned nj = num_j();
 
-  for (unsigned i = 0; i < nx; ++i)
-    for (unsigned j = 0; j < ny; ++j) {
-      this->u_(i, j, 0) = 0.0;
-      this->u_(i, j, 1) = 0.0;
-      this->omega(i, j) = omega;
+  for (unsigned i = 0; i < ni; ++i)
+    for (unsigned j = 0; j < nj; ++j) {
+      u(i, j, 0) = 0.0;
+      u(i, j, 1) = 0.0;
+      omega(i, j) = omega;
     }
 }
 

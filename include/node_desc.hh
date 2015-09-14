@@ -23,10 +23,16 @@
 
 #include "balbm_config.hh"
 #include <algorithm>
+#include <memory>
 
 namespace balbm {
 
 namespace d2q9 {
+
+class Lattice;
+class IncompFlowMultiscaleMap;
+class IncompFlowCollisionManager;
+
 //! \class AbstractNodeDesc
 //!
 //! \brief Abstract base class for  node descriptors
@@ -40,7 +46,7 @@ public:
   inline void collide_and_bound(Lattice &, IncompFlowMultiscaleMap &,
                                 const IncompFlowCollisionManager &,
                                 const unsigned, const unsigned) const;
-  virtual ~NodeDesc() = 0;
+  virtual ~AbstractNodeDesc() = 0;
 
 private:
   virtual void stream_(Lattice &, const unsigned, const unsigned) const
@@ -174,10 +180,10 @@ private:
 class NodePeriodic : public AbstractNodeActive {
 public:
   ~NodePeriodic() {}
-  NodePeriodic(const unsigned i_next, const unsigned j_next, const unsigned* ks,
+  NodePeriodic(const unsigned i_next, const unsigned j_next, const unsigned *ks,
                const unsigned nk)
-    : i_next_(i_next), j_next_(j_next), 
-      ks_(std::unique_ptr<unsigned[]>(new unsigned[ks]), nk_(nk) {}
+      : i_next_(i_next), j_next_(j_next),
+        ks_(std::unique_ptr<unsigned[]>(new unsigned[ks])), nk_(nk) {}
 
 private:
   void collide_and_bound_(Lattice &, IncompFlowMultiscaleMap &,

@@ -18,13 +18,12 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "balbm_config.hh"
-#include "lattice.hh"
-#include "multiscale_map.hh"
-#include "simulate.hh"
 
 namespace balbm {
 
 namespace d2q9 {
+
+class AbstractSimulation;
 
 //! \class AbstractSimCallback
 //!
