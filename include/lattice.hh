@@ -28,7 +28,9 @@
 #include <cassert>
 #include <cmath>
 #include <exception>
+//#include <iosfwd>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 namespace balbm {
@@ -72,8 +74,8 @@ public:
   Lattice &operator=(Lattice &&);
   ~Lattice() {
     try {
-      for (auto &node_desc : node_descs_)
-        node_desc->::~AbstractNodeDesc();
+      for (auto &pnode_desc : node_descs_)
+        pnode_desc->~AbstractNodeDesc();
     } catch (...) {
     }
   }
@@ -87,7 +89,7 @@ public:
   static constexpr double cssq() { return cs() * cs(); }
   inline unsigned num_i() const { return ni_; }
   inline unsigned num_j() const { return nj_; }
-  static constexpr unsigned num_k() { return 9; }
+  static constexpr unsigned num_k() { return nk_; }
   inline const double *pf() const noexcept { return spf_.get(); }
   inline double f(unsigned i, unsigned j, unsigned k) const noexcept {
     return spf_[ni_ * (i * nj_ + j) + k];
@@ -114,7 +116,9 @@ public:
 #endif
   }
   inline const double *pc(const unsigned k) const noexcept {
-    return (&lat_vecs_[2 * k]);
+    assert(k <= 9 && static_cast<int>(k) >= 0 &&
+           "index `k` out of bounds in Lattice::pe");
+    return lat_vecs_[k];
   }
   inline double c(const unsigned k, const unsigned c) const noexcept {
     return *(pc(k) + c);
@@ -161,7 +165,8 @@ public:
 
   // bounds checking
   inline bool in_bounds(const int i, const int j) const noexcept {
-    return (i < ni_ && i >= 0 && j < nj_ && j >= 0);
+    return (i < static_cast<int>(ni_) && i >= 0 && j < static_cast<int>(nj_) &&
+            j >= 0);
   }
   void check_bounds(const unsigned i, const unsigned j) const {
     if (!in_bounds(i, j)) {
@@ -174,8 +179,9 @@ public:
   }
 
 private:
-  static const double lat_vecs_[Lattice::num_k()][2];
-  static const double w_[Lattice::num_k()];
+  static constexpr unsigned nk_ = 9;
+  static const double lat_vecs_[nk_][2];
+  static const double w_[nk_];
   const unsigned ni_;
   const unsigned nj_;
   std::unique_ptr<double[]> spf_;

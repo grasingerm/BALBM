@@ -16,7 +16,6 @@
 
 #include "node_desc.hh"
 #include <cassert>
-#include <sstream>
 
 namespace balbm {
 
@@ -30,28 +29,13 @@ AbstractNodeDesc::~AbstractNodeDesc() {}
 //! \param lat D2Q9 lattice
 //! \param i y-coord of node
 //! \param j x-coord of node
-inline void AbstractNodeDesc::stream(Lattice &lat, const unsigned i,
-                                     const unsigned j) const {
+void AbstractNodeDesc::stream(Lattice &lat, const unsigned i,
+                              const unsigned j) const {
 #ifdef BALBM_CHECK_BOUNDS_STREAMING
   stream_with_bcheck_(lat, i, j);
 #else
   stream_(lat, i, j);
 #endif
-}
-
-//! D2Q9 base class collide and bound
-//!
-//! \param lat Lattice
-//! \param mmap Incompressible flow multiscale map
-//! \param cman Collision manager
-//! \param i Index of node in the y-direction
-//! \param j Index of node in the x-direction
-inline void
-AbstractNodeDesc::collide_and_bound_(Lattice &lat,
-                                     IncompFlowMultiscaleMap &mmap,
-                                     const IncompFlowCollisionManager &cman,
-                                     const unsigned i, const unsigned j) const {
-  collide_and_bound_(lat, mmap, cman, i, j);
 }
 
 //! Virtual destructor definition
@@ -396,7 +380,7 @@ void NodeNorthFacingWall::collide_and_bound_(
 NodePeriodic::NodePeriodic(const unsigned i_next, const unsigned j_next, 
                            const unsigned* ks, const unsigned nk)
     : i_next_(i_next), j_next_(j_next), 
-      ks_(std::unique_ptr<unsigned[]>(new unsigned[ks]), nk_(nk) {
+      ks_(std::unique_ptr<unsigned[]>(new unsigned[nk]), nk_(nk) {
   assert(nk >= 0 && nk <= 9); // TODO: consider turning this into a throw
   for (unsigned k = 0; k < nk; ++k) {
     assert(ks[k] < 9 && ks[k] >= 0);

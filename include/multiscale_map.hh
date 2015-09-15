@@ -100,7 +100,7 @@ public:
       : AbstractMultiscaleMap(ni, nj),
         spu_(std::unique_ptr<double[]>(new double[ni * nj * 2])),
         spomega_(std::unique_ptr<double[]>(new double[ni * nj])) {
-    init_(omega)
+    init_(omega);
   }
   ~IncompFlowMultiscaleMap() {}
   inline double u(const unsigned i, const unsigned j, const unsigned c) const {

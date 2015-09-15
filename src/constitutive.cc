@@ -14,7 +14,11 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+#include "balbm_config.hh"
 #include "constitutive.hh"
+#include "lattice.hh"
+#include "multiscale_map.hh"
+#include <armadillo>
 
 namespace balbm {
 

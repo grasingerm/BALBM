@@ -34,7 +34,7 @@ public:
   inline void operator()(AbstractSimulation &sim) const { f_(sim); }
 
 private:
-  virtual void f_(AbstractSimulation &sim) = 0;
+  virtual void f_(AbstractSimulation &sim) const = 0;
 };
 
 } // namespace d2q9

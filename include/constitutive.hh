@@ -17,13 +17,15 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#include "lattice.hh"
 #include <armadillo>
 #include <limits>
 
 namespace balbm {
 
 namespace d2q9 {
+
+class Lattice;
+class AbstractMultiscaleMap;
 
 //! \class AbstractConstitutiveEq
 //!

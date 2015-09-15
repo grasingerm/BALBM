@@ -42,7 +42,7 @@ class IncompFlowCollisionManager;
 //! steps in order to simulate appropriate physics and boundary conditions
 class AbstractNodeDesc {
 public:
-  inline void stream(Lattice &, const unsigned, const unsigned) const;
+  void stream(Lattice &, const unsigned, const unsigned) const;
   inline void collide_and_bound(Lattice &, IncompFlowMultiscaleMap &,
                                 const IncompFlowCollisionManager &,
                                 const unsigned, const unsigned) const;
@@ -57,6 +57,21 @@ private:
                                   const IncompFlowCollisionManager &,
                                   const unsigned, const unsigned) const;
 };
+
+//! D2Q9 base class collide and bound
+//!
+//! \param lat Lattice
+//! \param mmap Incompressible flow multiscale map
+//! \param cman Collision manager
+//! \param i Index of node in the y-direction
+//! \param j Index of node in the x-direction
+inline void
+AbstractNodeDesc::collide_and_bound_(Lattice &lat,
+                                     IncompFlowMultiscaleMap &mmap,
+                                     const IncompFlowCollisionManager &cman,
+                                     const unsigned i, const unsigned j) const {
+  collide_and_bound_(lat, mmap, cman, i, j);
+}
 
 //! \class NodeInactive
 //!
@@ -180,10 +195,8 @@ private:
 class NodePeriodic : public AbstractNodeActive {
 public:
   ~NodePeriodic() {}
-  NodePeriodic(const unsigned i_next, const unsigned j_next, const unsigned *ks,
-               const unsigned nk)
-      : i_next_(i_next), j_next_(j_next),
-        ks_(std::unique_ptr<unsigned[]>(new unsigned[ks])), nk_(nk) {}
+  NodePeriodic(const unsigned, const unsigned, const unsigned *,
+               const unsigned);
 
 private:
   void collide_and_bound_(Lattice &, IncompFlowMultiscaleMap &,

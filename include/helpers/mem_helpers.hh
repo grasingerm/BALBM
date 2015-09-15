@@ -46,7 +46,8 @@ T *SimpleMemPool::allocate(Args... args) {
     return nullptr;
 
   T *temp_ptr = static_cast<T *>(internal_ptr_);
-  T *result = new (temp_ptr) T(args...);
+  new (temp_ptr) T(args...);
+  T *result = temp_ptr;
   internal_ptr_ = static_cast<void *>(++temp_ptr);
   allocated_ += to_alloc;
 

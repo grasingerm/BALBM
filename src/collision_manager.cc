@@ -21,9 +21,6 @@ namespace balbm {
 
 namespace d2q9 {
 
-//! Virtual destructor
-AbstractCollisionManager::~AbstractCollisionManager() {}
-
 //! Incompressible flow collision
 //!
 //! \param lat Lattice
@@ -35,7 +32,7 @@ void IncompFlowCollisionManager::collide_(Lattice &lat,
                                           const unsigned i,
                                           const unsigned j) const {
   const auto rhoij = mmap.rho(i, j);
-  arma::vec::fixed<2> uij = arma::vec(mmap.pu(i, j));
+  auto uij = arma::vec::fixed<2>(mmap.pu(i, j));
   if (pextforce_ != nullptr)
     uij = pextforce_->u_trans(uij);
 
