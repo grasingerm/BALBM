@@ -21,14 +21,13 @@
 #include "constitutive.hh"
 #include "equilibrium.hh"
 #include "force.hh"
-#include "lattice.hh"
 #include <memory>
 
 namespace balbm {
 
 namespace d2q9 {
 
-// class Lattice;
+class Lattice;
 // class AbstractIncompFlowEqFunct;
 // class AbstractConstitutiveEq;
 // class AbstractForce;

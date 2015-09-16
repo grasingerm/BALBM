@@ -26,10 +26,10 @@ AbstractMultiscaleMap::~AbstractMultiscaleMap() {}
 //! Map particle distribution functions to density
 //!
 //! \param lat D2Q9 lattice
-AbstractMultiscaleMap::map_to_macro_(const Lattice &lat) {
-  for (unsigned i = 0; i < num_x(); ++i)
-    for (unsigned j = 0; j < num_y(); ++j)
-      map_to_macro_(i, j);
+void AbstractMultiscaleMap::map_to_macro_(const Lattice &lat) {
+  for (unsigned i = 0; i < num_i(); ++i)
+    for (unsigned j = 0; j < num_j(); ++j)
+      map_to_macro_(lat, i, j);
 }
 
 //! Map particle distribution functions to density
@@ -61,10 +61,10 @@ void IncompFlowMultiscaleMap::map_to_macro_(const Lattice &lat,
 
   double fijk;
   for (unsigned k = 0; k < nk; ++k) {
-    fijk = lat.f(i, j k);
+    fijk = lat.f(i, j, k);
     rho_(i, j) += fijk;
-    u_(i, j, 0) += fijk * lat.k(k, 0);
-    u_(i, j, 1) += fijk * lat.k(k, 1);
+    u_(i, j, 0) += fijk * lat.c(k, 0);
+    u_(i, j, 1) += fijk * lat.c(k, 1);
   }
 }
 
@@ -77,9 +77,9 @@ void IncompFlowMultiscaleMap::init_(const double omega) {
 
   for (unsigned i = 0; i < ni; ++i)
     for (unsigned j = 0; j < nj; ++j) {
-      u(i, j, 0) = 0.0;
-      u(i, j, 1) = 0.0;
-      omega(i, j) = omega;
+      this->u_(i, j, 0) = 0.0;
+      this->u_(i, j, 1) = 0.0;
+      this->omega(i, j) = omega;
     }
 }
 

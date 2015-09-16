@@ -19,5 +19,6 @@
 
 #include "helpers/mem_helpers.hh"
 #include "helpers/prof_helpers.hh"
+#include "helpers/type_helpers.hh"
 
 #endif // HELPERS_HH

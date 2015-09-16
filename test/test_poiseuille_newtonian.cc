@@ -28,7 +28,7 @@ const static unsigned nj = 12;
 const static double rho = 1.0;
 const static double mu = 1.0 / 6.0;
 const static double pgrad = -1.102e-3;
-const static std::array<double, 2> F{{-pgrad, 0.0}};
+static double F[] = {-pgrad, 0.0};
 const static unsigned nsteps = 5000;
 const static unsigned stepout = 50;
 

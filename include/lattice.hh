@@ -42,20 +42,7 @@ namespace d2q9 {
 //! \class Lattice
 //!
 //! \brief  lattice for the lattice Boltzmann method
-//!
-//! 6     2     5
-//!   \   |   /
-//!    \  |  /
-//!     \ | /
-//! 3 --- 0 --- 1
-//!     / | \
-//!    /  |  \
-//!   /   |   \
-//! 7     4     8
-//!
 class Lattice {
-  friend class AbstractNodeDesc;
-
 public:
   // constructors and assignment
   // TODO: make more constructors, initializers, and factories
@@ -98,6 +85,18 @@ public:
   inline double ftemp(unsigned i, unsigned j, unsigned k) const noexcept {
     return spftemp_[ni_ * (i * nj_ + j) + k];
   }
+  inline double *pf(const unsigned i, const unsigned j) {
+    return &(spf_[(i * nj_ + j) * num_k()]);
+  }
+  inline double &f(const unsigned i, const unsigned j, const unsigned k) {
+    return *(pf(i, j) + k);
+  }
+  inline double *pft(const unsigned i, const unsigned j) {
+    return &(spftemp_[(i * nj_ + j) * num_k()]);
+  }
+  inline double &ft(const unsigned i, const unsigned j, const unsigned k) {
+    return *(pft(i, j) + k);
+  }
   inline const std::vector<AbstractNodeDesc *> &node_descs() const noexcept {
     return node_descs_;
   }
@@ -130,8 +129,8 @@ public:
   inline void stream(const unsigned i, const unsigned j) {
     node_desc(i, j).stream(*this, i, j);
   }
-  inline void stream(const unsigned bi, const unsigned ei, const unsigned bj,
-                     const unsigned ej) {
+  void stream(const unsigned bi, const unsigned ei, const unsigned bj,
+              const unsigned ej) {
     for (unsigned i = bi; i <= ei; ++i)
       for (unsigned j = bj; j <= ej; ++j)
         stream(i, j);
@@ -168,40 +167,19 @@ public:
     return (i < static_cast<int>(ni_) && i >= 0 && j < static_cast<int>(nj_) &&
             j >= 0);
   }
-  void check_bounds(const unsigned i, const unsigned j) const {
-    if (!in_bounds(i, j)) {
-      std::ostringstream os;
-      os << "(i, j) = (" << i << ", " << j
-         << ") is out of bounds. Check "
-            "boundary conditions to ensure they are well-defined.";
-      throw(std::out_of_range(os.str()));
-    }
-  }
+  bool check_bounds(const unsigned, const unsigned) const
+      throw(std::out_of_range);
 
 private:
   static constexpr unsigned nk_ = 9;
   static const double lat_vecs_[nk_][2];
   static const double w_[nk_];
-  const unsigned ni_;
-  const unsigned nj_;
+  unsigned ni_;
+  unsigned nj_;
   std::unique_ptr<double[]> spf_;
   std::unique_ptr<double[]> spftemp_;
   std::vector<AbstractNodeDesc *> node_descs_;
   SimpleMemPool mem_pool_;
-
-  // lattice vectors and particle distribution functions
-  inline double *pf_(const unsigned i, const unsigned j) {
-    return &(spf_[(i * nj_ + j) * num_k()]);
-  }
-  inline double &f_(const unsigned i, const unsigned j, const unsigned k) {
-    return *(pf_(i, j) + k);
-  }
-  inline double *pft_(const unsigned i, const unsigned j) {
-    return &(spftemp_[(i * nj_ + j) * num_k()]);
-  }
-  inline double &ft_(const unsigned i, const unsigned j, const unsigned k) {
-    return *(pft_(i, j) + k);
-  }
 
   void init_f_(const double);
 };

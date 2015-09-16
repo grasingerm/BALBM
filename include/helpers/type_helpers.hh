@@ -1,3 +1,6 @@
+#ifndef TYPE_HELPERS_HH
+#define TYPE_HELPERS_HH
+
 // Complex flow simulator using lattice Boltzmann method
 // Copyright (C) 2015 Matthew Grasinger
 //
@@ -14,25 +17,13 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
-#ifndef BALBM_CONFIG_HH
-#define BALBM_CONFIG_HH
+//! compiler dianostic for checking a deduced type
+//! usage: TypeDeduction<decltype(var)> vartype;
+template <typename T> class TypeDeduction;
 
-// NOTE: for maximum performance define NDEBUG and do not define
-//       BALBM_CHECK_BOUNDS_STREAMING.
+//! template metaprogramming for removing const from a type
+template <class T> struct remove_const { using type = T; };
 
-//#define NDEBUG
+template <class U> struct remove_const<U const> { using type = U; };
 
-//! Define this to use runtime bounds checking when streaming
-//#define BALBM_CHECK_BOUNDS_STREAMING
-
-//! Define this to disable armadillo bounds checking
-//#define ARMA_NO_DEBUG
-
-//! Define this to allow armadillo to save to hdf5
-//#define ARMA_USE_HDF5
-
-namespace balbm {
-// const static char *VERSION = "0.0.1";
-}
-
-#endif // BALBM_CONFIG_HH
+#endif // TYPE_HELPERS_HH

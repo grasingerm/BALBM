@@ -25,7 +25,7 @@ namespace balbm {
 namespace d2q9 {
 
 class Lattice;
-class AbstractMultiscaleMap;
+class IncompFlowMultiscaleMap;
 
 //! \class AbstractConstitutiveEq
 //!
@@ -35,14 +35,14 @@ class AbstractMultiscaleMap;
 class AbstractConstitutiveEq {
 public:
   virtual ~AbstractConstitutiveEq() = 0;
-  inline double mu(const Lattice &lat, const AbstractMultiscaleMap &mmap,
+  inline double mu(const Lattice &lat, const IncompFlowMultiscaleMap &mmap,
                    const arma::vec &fneq, const unsigned i,
                    const unsigned j) const {
     return mu_(lat, mmap, fneq, i, j);
   }
 
 private:
-  virtual double mu_(const Lattice &, const AbstractMultiscaleMap &,
+  virtual double mu_(const Lattice &, const IncompFlowMultiscaleMap &,
                      const arma::vec &, const unsigned,
                      const unsigned) const = 0;
 };
@@ -59,8 +59,8 @@ public:
 
 private:
   const double cmu_;
-  double mu_(const Lattice &, const AbstractMultiscaleMap &, const arma::vec &,
-             const unsigned, const unsigned) const;
+  double mu_(const Lattice &, const IncompFlowMultiscaleMap &,
+             const arma::vec &, const unsigned, const unsigned) const;
 };
 
 //! \class BinghamConstitutiveEq
@@ -82,8 +82,8 @@ private:
   const double tau_y_;
   const double m_;
   const double gamma_min_;
-  double mu_(const Lattice &, const AbstractMultiscaleMap &, const arma::vec &,
-             const unsigned, const unsigned);
+  double mu_(const Lattice &, const IncompFlowMultiscaleMap &,
+             const arma::vec &, const unsigned, const unsigned);
 };
 
 } // namespace d2q9

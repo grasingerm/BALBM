@@ -43,9 +43,9 @@ class IncompFlowCollisionManager;
 class AbstractNodeDesc {
 public:
   void stream(Lattice &, const unsigned, const unsigned) const;
-  inline void collide_and_bound(Lattice &, IncompFlowMultiscaleMap &,
-                                const IncompFlowCollisionManager &,
-                                const unsigned, const unsigned) const;
+  void collide_and_bound(Lattice &, IncompFlowMultiscaleMap &,
+                         const IncompFlowCollisionManager &, const unsigned,
+                         const unsigned) const;
   virtual ~AbstractNodeDesc() = 0;
 
 private:

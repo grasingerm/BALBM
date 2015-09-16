@@ -14,9 +14,11 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+#include "helpers/type_helpers.hh"
 #include "lattice.hh"
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <vector>
 
 namespace balbm {
@@ -37,9 +39,6 @@ const double Lattice::lat_vecs_[Lattice::nk_][2] = {{0.0, 0.0},
 //! \var static class member w_ Weights for each lattice direction
 const double Lattice::w_[] = {4. / 9.,  1. / 9.,  1. / 9.,  1. / 9., 1. / 9.,
                               1. / 36., 1. / 36., 1. / 36., 1. / 36.};
-
-const double Lattice::dx_ = 1.0;
-const double Lattice::dt_ = 1.0;
 
 //! Copy constructor for  lattice
 //!
@@ -99,8 +98,8 @@ Lattice &Lattice::operator=(Lattice &&lat) {
   spftemp_ = std::move(lat.spftemp_);
   node_descs_ = std::move(lat.node_descs_);
 
-  lat.f.reset(nullptr);
-  lat.ftemp.reset(nullptr);
+  lat.spf_.reset(nullptr);
+  lat.spftemp_.reset(nullptr);
 
   return *this;
 }
@@ -108,9 +107,11 @@ Lattice &Lattice::operator=(Lattice &&lat) {
 //! Stream particle distribution functions
 //!
 //! \param bounds Vector of arrays of {begin_i, end_i, begin_j, end_j}
-void stream(const std::vector<std::array<unsigned, 4>> &bounds) {
-  for (const auto &row : bounds)
-    stream(row[0], row[1], row[2], row[3]);
+void stream(const std::vector<std::array<unsigned, 4>> &) {
+  // for (const auto &row : bounds)
+  // stream(row[0], row[1], row[2], row[3]);
+  throw "Function not yet implemented";
+  assert(false && "Function not implemented");
 }
 
 //! Perform bounds checking
@@ -124,9 +125,8 @@ bool Lattice::check_bounds(const unsigned i, const unsigned j) const
   bool is_in_bounds = in_bounds(i, j);
   if (is_in_bounds) {
     std::ostringstream oss;
-    oss << "Ill-defined boundaries. Particles streamed out of bounds from "
-        << "node (" << i << " ," << j << ") to (" << i_next << ", " << j_next
-        << "). Check boundary conditions.";
+    oss << "Ill-defined boundaries. Particles streamed out of bounds to "
+        << "node (" << i << " ," << j << "). Check boundary conditions.";
     throw std::out_of_range(oss.str());
   }
 
@@ -143,15 +143,15 @@ void Lattice::init_f_(const double rho) {
   // should this loop be multithreaded/parallelized?
   for (unsigned i = 0; i < ni; ++i)
     for (unsigned j = 0; j < nj; ++j) {
-      f_(i, j, 0) = w(0) * rho;
-      f_(i, j, 1) = w(1) * rho;
-      f_(i, j, 2) = w(2) * rho;
-      f_(i, j, 3) = w(3) * rho;
-      f_(i, j, 4) = w(4) * rho;
-      f_(i, j, 5) = w(5) * rho;
-      f_(i, j, 6) = w(6) * rho;
-      f_(i, j, 7) = w(7) * rho;
-      f_(i, j, 8) = w(8) * rho;
+      f(i, j, 0) = w(0) * rho;
+      f(i, j, 1) = w(1) * rho;
+      f(i, j, 2) = w(2) * rho;
+      f(i, j, 3) = w(3) * rho;
+      f(i, j, 4) = w(4) * rho;
+      f(i, j, 5) = w(5) * rho;
+      f(i, j, 6) = w(6) * rho;
+      f(i, j, 7) = w(7) * rho;
+      f(i, j, 8) = w(8) * rho;
     }
   /*  for (unsigned k = 0; k < num_k(); ++k) // TODO: should I unroll this
      inner?

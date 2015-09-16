@@ -29,16 +29,16 @@ AbstractConstitutiveEq::~AbstractConstitutiveEq() {}
 
 //! Constitutive equation for a Newtonian fluid
 //!
-//! \param lat Lattice
-//! \param mmap Multiscale map of macroscopic variables
-//! \param fneq Non-equilibrium particle distribution
-//! \param i Index in x-direction
-//! \param j Index in y-direction
+//! \param Lattice
+//! \param Multiscale map of macroscopic variables
+//! \param Non-equilibrium particle distribution
+//! \param Index in x-direction
+//! \param Index in y-direction
 //! \return Kinematic viscosity
-double NewtonianConstitutiveEq::mu_(const Lattice &lat,
-                                    const AbstractMultiscaleMap &mmap,
-                                    const arma::vec &fneq, const unsigned i,
-                                    const unsigned j) {
+double NewtonianConstitutiveEq::mu_(const Lattice &,
+                                    const IncompFlowMultiscaleMap &,
+                                    const arma::vec &, const unsigned,
+                                    const unsigned) const {
   return cmu_;
 }
 

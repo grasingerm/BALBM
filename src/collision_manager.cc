@@ -15,6 +15,8 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "collision_manager.hh"
+#include "lattice.hh"
+#include "multiscale_map.hh"
 #include <armadillo>
 
 namespace balbm {
@@ -34,7 +36,7 @@ void IncompFlowCollisionManager::collide_(Lattice &lat,
   const auto rhoij = mmap.rho(i, j);
   auto uij = arma::vec::fixed<2>(mmap.pu(i, j));
   if (pextforce_ != nullptr)
-    uij = pextforce_->u_trans(uij);
+    uij = pextforce_->u_trans(lat, uij);
 
   const unsigned nk = lat.num_k();
   arma::vec feq(nk);
@@ -49,11 +51,11 @@ void IncompFlowCollisionManager::collide_(Lattice &lat,
 
   if (pextforce_ != nullptr)
     for (unsigned k = 0; k < nk; ++k)
-      lat.f(i, j, k) = (omega * feq(k) + (1.0 - omega) * lat.k(i, j, k)
-                        + pextforce_->f_col(lat, omega, uij, k);
+      lat.f(i, j, k) = omega * feq(k) + (1.0 - omega) * lat.f(i, j, k) +
+                       pextforce_->f_col(lat, omega, uij, k);
   else
     for (unsigned k = 0; k < nk; ++k)
-      lat.f(i, j, k) = (omega * feq(k) + (1.0 - omega) * lat.k(i, j, k);
+      lat.f(i, j, k) = omega * feq(k) + (1.0 - omega) * lat.f(i, j, k);
 
   mmap.omega(i, j) = omega;
 }

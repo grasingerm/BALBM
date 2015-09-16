@@ -18,12 +18,14 @@
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "balbm_config.hh"
-#include "lattice.hh"
 #include <armadillo>
+#include <array>
 
 namespace balbm {
 
 namespace d2q9 {
+
+class Lattice;
 
 //! \class AbstractForce
 //!
@@ -33,22 +35,23 @@ namespace d2q9 {
 class AbstractForce {
 public:
   virtual ~AbstractForce() = 0;
-  AbstractForce(const std::array<double, 2> &F) : F_(F) {}
+  AbstractForce(double *F) : F_(arma::vec::fixed<2>(F)) {}
   inline arma::vec::fixed<2> u_trans(const Lattice &lat,
-                                     const arma::vec &u) const {
+                                     const arma::vec::fixed<2> &u) const {
     return u_trans_(lat, u);
   }
   inline double f_col(const Lattice &lat, const double omega,
-                      const arma::vec &u, const unsigned k) const {
+                      const arma::vec::fixed<2> &u, const unsigned k) const {
     return f_col_(lat, omega, u, k);
   }
-  inline const std::array<double, 2> &F() const { return F_; }
+  inline const arma::vec::fixed<2> &F() const { return F_; }
 
 private:
-  std::array<double, 2> F_;
+  arma::vec::fixed<2> F_;
   virtual arma::vec::fixed<2> u_trans_(const Lattice &,
-                                       const arma::vec &) const = 0;
-  virtual double f_col_(const Lattice &, const double omega, const arma::vec &,
+                                       const arma::vec::fixed<2> &) const = 0;
+  virtual double f_col_(const Lattice &, const double omega,
+                        const arma::vec::fixed<2> &,
                         const unsigned k) const = 0;
 };
 
@@ -61,11 +64,12 @@ private:
 class SukopThorneForce : public AbstractForce {
 public:
   ~SukopThorneForce(){};
-  SukopThorneForce(const std::array<double, 2> &F) : AbstractForce(F) {}
+  SukopThorneForce(double *F) : AbstractForce(F) {}
 
 private:
-  arma::vec::fixed<2> u_trans_(const Lattice &, const arma::vec &) const;
-  double f_col_(const Lattice &, const double, const arma::vec &,
+  arma::vec::fixed<2> u_trans_(const Lattice &,
+                               const arma::vec::fixed<2> &) const;
+  double f_col_(const Lattice &, const double, const arma::vec::fixed<2> &,
                 const unsigned) const;
 };
 
@@ -78,11 +82,12 @@ private:
 class GuoForce : public AbstractForce {
 public:
   ~GuoForce(){};
-  GuoForce(const std::array<double, 2> &F) : AbstractForce(F) {}
+  GuoForce(double *F) : AbstractForce(F) {}
 
 private:
-  arma::vec::fixed<2> u_trans_(const Lattice &, const arma::vec &) const;
-  double f_col_(const Lattice &, const double, const arma::vec &,
+  arma::vec::fixed<2> u_trans_(const Lattice &,
+                               const arma::vec::fixed<2> &) const;
+  double f_col_(const Lattice &, const double, const arma::vec::fixed<2> &,
                 const unsigned) const;
 };
 

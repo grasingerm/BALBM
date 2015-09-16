@@ -14,6 +14,7 @@
 // A copy of the GNU General Public License is at the root directory of
 
 #include "equilibrium.hh"
+#include "lattice.hh"
 #include <armadillo>
 
 namespace balbm {
@@ -21,7 +22,7 @@ namespace balbm {
 namespace d2q9 {
 
 //! Virtual destructor definition
-AbstractIncompEqFunct::~AbstractIncompEqFunct() {}
+AbstractIncompFlowEqFunct::~AbstractIncompFlowEqFunct() {}
 
 //! Equilibrium distribution function for incompressible flow
 //!
@@ -32,7 +33,7 @@ AbstractIncompEqFunct::~AbstractIncompEqFunct() {}
 //! \return Equilibrium particle distribution
 double IncompFlowEqFunct::f_(const Lattice &lat, const double rho,
                              const arma::vec &u, const unsigned k) const {
-  const arma::vec ck(lat.pc(k), 2, false, true);
+  const arma::vec ck(const_cast<double *>(lat.pc(k)), 2, false, true);
   const double ckdotu = arma::dot(ck, u);
   const double cssq = lat.cssq();
 
@@ -50,7 +51,7 @@ double IncompFlowEqFunct::f_(const Lattice &lat, const double rho,
 //! \return Equilibrium particle distribution
 double IncompFlowHLEqFunct::f_(const Lattice &lat, const double rho,
                                const arma::vec &u, const unsigned k) const {
-  const arma::vec ck(lat.pc(k), 2, false, true);
+  const arma::vec ck(const_cast<double *>(lat.pc(k)), 2, false, true);
   const double ckdotu = arma::dot(ck, u);
   const double cssq = lat.cssq();
 
@@ -58,5 +59,7 @@ double IncompFlowHLEqFunct::f_(const Lattice &lat, const double rho,
                       (ckdotu / cssq + 0.5 * (ckdotu * ckdotu) / (cssq * cssq) -
                        0.5 * dot(u, u) / cssq)));
 }
-}
-}
+
+} // namespace d2q9
+
+} // namespace balbm

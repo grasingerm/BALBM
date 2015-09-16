@@ -14,6 +14,7 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+#include "lattice.hh"
 #include "node_desc.hh"
 #include <cassert>
 
@@ -59,7 +60,7 @@ void AbstractNodeActive::stream_(Lattice &lat, const unsigned i,
     j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
 
-    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
 
@@ -82,7 +83,7 @@ void AbstractNodeActive::stream_with_bcheck_(Lattice &lat, const unsigned i,
 
     lat.check_bounds(i_next, j_next);
 
-    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
 
@@ -121,11 +122,11 @@ void NodeWestFacingWall::stream_(Lattice &lat, const unsigned i,
   }
 #endif
 
-  lat.ft_(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f_(i, j, 2);
-  lat.ft_(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f_(i, j, 3);
-  lat.ft_(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f_(i, j, 4);
-  lat.ft_(i + lat.c(6, 0), j + lat.c(6, 1), 6) = lat.f_(i, j, 6);
-  lat.ft_(i + lat.c(7, 0), j + lat.c(7, 1), 7) = lat.f_(i, j, 7);
+  lat.ft(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f(i, j, 2);
+  lat.ft(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f(i, j, 3);
+  lat.ft(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f(i, j, 4);
+  lat.ft(i + lat.c(6, 0), j + lat.c(6, 1), 6) = lat.f(i, j, 6);
+  lat.ft(i + lat.c(7, 0), j + lat.c(7, 1), 7) = lat.f(i, j, 7);
 }
 
 //! D2Q9 streaming for a west facing node with bounds checking
@@ -146,7 +147,7 @@ void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
     j_next = j + lat.c(k, 1);
 
     lat.check_bound(i_next, j_next);
-    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
 
@@ -162,9 +163,9 @@ void NodeWestFacingWall::collide_and_bound_(
     const IncompFlowCollisionManager &cman, const unsigned i,
     const unsigned j) const {
   cman.collide(lat, mmap, i, j);
-  lat.f_(i, j, 3) = lat.f_(i, j, 1);
-  lat.f_(i, j, 6) = lat.f_(i, j, 8);
-  lat.f_(i, j, 7) = lat.f_(i, j, 5);
+  lat.f(i, j, 3) = lat.f(i, j, 1);
+  lat.f(i, j, 6) = lat.f(i, j, 8);
+  lat.f(i, j, 7) = lat.f(i, j, 5);
 }
 
 //! D2Q9 streaming for a south facing node
@@ -188,11 +189,11 @@ void NodeSouthFacingWall::stream_(Lattice &lat, const unsigned i,
   }
 #endif
 
-  lat.ft_(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f_(i, j, 1);
-  lat.ft_(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f_(i, j, 3);
-  lat.ft_(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f_(i, j, 4);
-  lat.ft_(i + lat.c(7, 0), j + lat.c(7, 1), 7) = lat.f_(i, j, 7);
-  lat.ft_(i + lat.c(8, 0), j + lat.c(8, 1), 8) = lat.f_(i, j, 8);
+  lat.ft(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f(i, j, 1);
+  lat.ft(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f(i, j, 3);
+  lat.ft(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f(i, j, 4);
+  lat.ft(i + lat.c(7, 0), j + lat.c(7, 1), 7) = lat.f(i, j, 7);
+  lat.ft(i + lat.c(8, 0), j + lat.c(8, 1), 8) = lat.f(i, j, 8);
 }
 
 //! D2Q9 streaming for a south facing node with bounds checking
@@ -213,7 +214,7 @@ void NodeSouthFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
     j_next = j + lat.c(k, 1);
 
     lat.check_bound(i_next, j_next);
-    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
 
@@ -229,9 +230,9 @@ void NodeSouthFacingWall::collide_and_bound_(
     const IncompFlowCollisionManager &cman, const unsigned i,
     const unsigned j) const {
   cman.collide(lat, mmap, i, j);
-  lat.f_(i, j, 4) = lat.f_(i, j, 2);
-  lat.f_(i, j, 7) = lat.f_(i, j, 5);
-  lat.f_(i, j, 8) = lat.f_(i, j, 6);
+  lat.f(i, j, 4) = lat.f(i, j, 2);
+  lat.f(i, j, 7) = lat.f(i, j, 5);
+  lat.f(i, j, 8) = lat.f(i, j, 6);
 }
 
 //! D2Q9 streaming for a east facing node
@@ -255,11 +256,11 @@ void NodeEastFacingWall::stream_(Lattice &lat, const unsigned i,
   }
 #endif
 
-  lat.ft_(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f_(i, j, 1);
-  lat.ft_(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f_(i, j, 2);
-  lat.ft_(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f_(i, j, 4);
-  lat.ft_(i + lat.c(5, 0), j + lat.c(5, 1), 5) = lat.f_(i, j, 5);
-  lat.ft_(i + lat.c(8, 0), j + lat.c(8, 1), 8) = lat.f_(i, j, 8);
+  lat.ft(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f(i, j, 1);
+  lat.ft(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f(i, j, 2);
+  lat.ft(i + lat.c(4, 0), j + lat.c(4, 1), 4) = lat.f(i, j, 4);
+  lat.ft(i + lat.c(5, 0), j + lat.c(5, 1), 5) = lat.f(i, j, 5);
+  lat.ft(i + lat.c(8, 0), j + lat.c(8, 1), 8) = lat.f(i, j, 8);
 }
 
 //! D2Q9 streaming for a east facing node with bounds checking
@@ -280,7 +281,7 @@ void NodeEastFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
     j_next = j + lat.c(k, 1);
 
     lat.check_bound(i_next, j_next);
-    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
 
@@ -296,9 +297,9 @@ void NodeEastFacingWall::collide_and_bound_(
     const IncompFlowCollisionManager &cman, const unsigned i,
     const unsigned j) const {
   cman.collide(lat, mmap, i, j);
-  lat.f_(i, j, 1) = lat.f_(i, j, 3);
-  lat.f_(i, j, 5) = lat.f_(i, j, 7);
-  lat.f_(i, j, 8) = lat.f_(i, j, 6);
+  lat.f(i, j, 1) = lat.f(i, j, 3);
+  lat.f(i, j, 5) = lat.f(i, j, 7);
+  lat.f(i, j, 8) = lat.f(i, j, 6);
 }
 
 // TODO: prob micro-opt, BUT what-if we skip all 0 for streaming???
@@ -324,11 +325,11 @@ void NodeNorthFacingWall::stream_(Lattice &lat, const unsigned i,
   }
 #endif
 
-  lat.ft_(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f_(i, j, 1);
-  lat.ft_(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f_(i, j, 2);
-  lat.ft_(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f_(i, j, 3);
-  lat.ft_(i + lat.c(5, 0), j + lat.c(5, 1), 5) = lat.f_(i, j, 5);
-  lat.ft_(i + lat.c(6, 0), j + lat.c(6, 1), 6) = lat.f_(i, j, 6);
+  lat.ft(i + lat.c(1, 0), j + lat.c(1, 1), 1) = lat.f(i, j, 1);
+  lat.ft(i + lat.c(2, 0), j + lat.c(2, 1), 2) = lat.f(i, j, 2);
+  lat.ft(i + lat.c(3, 0), j + lat.c(3, 1), 3) = lat.f(i, j, 3);
+  lat.ft(i + lat.c(5, 0), j + lat.c(5, 1), 5) = lat.f(i, j, 5);
+  lat.ft(i + lat.c(6, 0), j + lat.c(6, 1), 6) = lat.f(i, j, 6);
 }
 
 //! D2Q9 streaming for a north facing node with bounds checking
@@ -349,7 +350,7 @@ void NodeNorthFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
     j_next = j + lat.c(k, 1);
 
     lat.check_bound(i_next, j_next);
-    lat.ft_(i_next, j_next, k) = lat.f_(i, j, k);
+    lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
 
@@ -365,9 +366,9 @@ void NodeNorthFacingWall::collide_and_bound_(
     const IncompFlowCollisionManager &cman, const unsigned i,
     const unsigned j) const {
   cman.collide(lat, mmap, i, j);
-  lat.f_(i, j, 2) = lat.f_(i, j, 4);
-  lat.f_(i, j, 5) = lat.f_(i, j, 7);
-  lat.f_(i, j, 6) = lat.f_(i, j, 8);
+  lat.f(i, j, 2) = lat.f(i, j, 4);
+  lat.f(i, j, 5) = lat.f(i, j, 7);
+  lat.f(i, j, 6) = lat.f(i, j, 8);
 }
 
 //! Constructor for periodic boundary condition node
@@ -402,7 +403,7 @@ void NodePeriodic::collide_and_bound_(
   cman.collide(lat, mmap, i, j);
   assert(lat.inbounds(i_next_, j_next_)); // TODO: throw?
   for (unsigned k = 0; k < nk_; ++k)
-    lat.f_(i_next_, j_next_, k) = lat.f_(i, j, k);
+    lat.f(i_next_, j_next_, k) = lat.f(i, j, k);
 }
 
 } // namespace d2q9

@@ -23,6 +23,8 @@ namespace balbm {
 
 namespace d2q9 {
 
+class Lattice;
+
 /* TODO: does it make sense to have a base class for all equilibrium equations?
 //! \class AbstractEqFunct
 //!
