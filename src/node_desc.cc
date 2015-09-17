@@ -14,6 +14,7 @@
 // A copy of the GNU General Public License is at the root directory of
 // this program.  If not, see <http://www.gnu.org/licenses/>
 
+#include "collision_manager.hh"
 #include "lattice.hh"
 #include "node_desc.hh"
 #include <cassert>
@@ -51,7 +52,7 @@ AbstractNodeActive::~AbstractNodeActive() {}
 //! \TODO should we unroll this loop?
 //! \TODO should this be multithreaded?
 void AbstractNodeActive::stream_(Lattice &lat, const unsigned i,
-                                 const unsigned j) const {
+                                 const unsigned j) const noexcept {
   const unsigned nk = lat.num_k();
   unsigned i_next, j_next;
 
@@ -112,10 +113,10 @@ void NodeWestFacingWall::stream_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {2, 3, 4, 6, 7};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
@@ -139,14 +140,14 @@ void NodeWestFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {2, 3, 4, 6, 7};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
 
-    lat.check_bound(i_next, j_next);
+    lat.check_bounds(i_next, j_next);
     lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
@@ -179,10 +180,10 @@ void NodeSouthFacingWall::stream_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
@@ -206,14 +207,14 @@ void NodeSouthFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
 
-    lat.check_bound(i_next, j_next);
+    lat.check_bounds(i_next, j_next);
     lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
@@ -246,10 +247,10 @@ void NodeEastFacingWall::stream_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {1, 2, 4, 5, 8};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
@@ -273,14 +274,14 @@ void NodeEastFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {1, 2, 4, 5, 8};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
 
-    lat.check_bound(i_next, j_next);
+    lat.check_bounds(i_next, j_next);
     lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
@@ -315,10 +316,10 @@ void NodeNorthFacingWall::stream_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {1, 2, 3, 5, 6};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
     assert(lat.in_bounds(i_next, j_next));
@@ -342,14 +343,14 @@ void NodeNorthFacingWall::stream_with_bcheck_(Lattice &lat, const unsigned i,
   const static unsigned stream_directions[] = {1, 2, 3, 5, 6};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
-  unsigned k;
+  unsigned k, i_next, j_next;
 
-  for (unsigned i = 0; i < n; ++i) {
-    k = stream_directions[i];
+  for (unsigned idx = 0; idx < n; ++idx) {
+    k = stream_directions[idx];
     i_next = i + lat.c(k, 0);
     j_next = j + lat.c(k, 1);
 
-    lat.check_bound(i_next, j_next);
+    lat.check_bounds(i_next, j_next);
     lat.ft(i_next, j_next, k) = lat.f(i, j, k);
   }
 }
@@ -381,10 +382,10 @@ void NodeNorthFacingWall::collide_and_bound_(
 NodePeriodic::NodePeriodic(const unsigned i_next, const unsigned j_next, 
                            const unsigned* ks, const unsigned nk)
     : i_next_(i_next), j_next_(j_next), 
-      ks_(std::unique_ptr<unsigned[]>(new unsigned[nk]), nk_(nk) {
+      ks_(std::unique_ptr<unsigned[]>(new unsigned[nk])), nk_(nk) {
   assert(nk >= 0 && nk <= 9); // TODO: consider turning this into a throw
   for (unsigned k = 0; k < nk; ++k) {
-    assert(ks[k] < 9 && ks[k] >= 0);
+    assert(ks[k] < 9 && static_cast<int>(ks[k]) >= 0);
     ks_[k] = ks[k];
   }
 }
@@ -401,7 +402,7 @@ void NodePeriodic::collide_and_bound_(
     const IncompFlowCollisionManager &cman, const unsigned i,
     const unsigned j) const {
   cman.collide(lat, mmap, i, j);
-  assert(lat.inbounds(i_next_, j_next_)); // TODO: throw?
+  assert(lat.in_bounds(i_next_, j_next_)); // TODO: throw?
   for (unsigned k = 0; k < nk_; ++k)
     lat.f(i_next_, j_next_, k) = lat.f(i, j, k);
 }

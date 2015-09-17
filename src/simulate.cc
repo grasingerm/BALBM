@@ -39,8 +39,8 @@ IncompFlowSimulation::IncompFlowSimulation(
     AbstractForce *pforce, std::vector<AbstractSimCallback *> *pscbs = nullptr)
     : AbstractSimulation(), lat_(Lattice(ni, nj, rho)),
       mmap_(IncompFlowMultiscaleMap(ni, nj, 
-            mu_to_omega(mu, lat.cssq(), lat.dt())),
-      cman_(pfeq, pconstiteq, pforce),
+            mu_to_omega(mu, lat_.cssq(), lat_.dt()))),
+      cman_(IncompFlowCollisionManager(pfeq, pconstiteq, pforce)),
       spscbs_(std::unique_ptr<std::vector<AbstractSimCallback *>>(pscbs)) {}
 
 //! Run an imcompressible flow simulation

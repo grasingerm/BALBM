@@ -66,13 +66,18 @@ public:
       : pfeq_(std::unique_ptr<AbstractIncompFlowEqFunct>(aef)),
         pconstiteq_(std::unique_ptr<AbstractConstitutiveEq>(ace)),
         pextforce_(std::unique_ptr<AbstractForce>(af)) {}
-  void collide_(Lattice &, IncompFlowMultiscaleMap &, const unsigned,
-                const unsigned) const;
+  inline void collide(Lattice &lat, IncompFlowMultiscaleMap &mmap, 
+                      const unsigned i, const unsigned j) const {
+    collide_(lat, mmap, i, j);
+  }
 
 private:
   std::unique_ptr<AbstractIncompFlowEqFunct> pfeq_;
   std::unique_ptr<AbstractConstitutiveEq> pconstiteq_;
   std::unique_ptr<AbstractForce> pextforce_;
+
+  void collide_(Lattice &, IncompFlowMultiscaleMap &, const unsigned,
+                const unsigned) const;
 };
 
 } // namespace d2q9
