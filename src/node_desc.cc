@@ -383,7 +383,7 @@ NodePeriodic::NodePeriodic(const unsigned i_next, const unsigned j_next,
                            const unsigned* ks, const unsigned nk)
     : i_next_(i_next), j_next_(j_next), 
       ks_(std::unique_ptr<unsigned[]>(new unsigned[nk])), nk_(nk) {
-  assert(nk >= 0 && nk <= 9); // TODO: consider turning this into a throw
+  assert(static_cast<int>(nk) >= 0 && nk <= 9); // TODO: consider turning this into a throw
   for (unsigned k = 0; k < nk; ++k) {
     assert(ks[k] < 9 && static_cast<int>(ks[k]) >= 0);
     ks_[k] = ks[k];

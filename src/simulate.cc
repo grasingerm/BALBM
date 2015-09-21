@@ -54,9 +54,8 @@ unsigned IncompFlowSimulation::simulate_(const unsigned nsteps) {
     for (unsigned k = init_step; k <= nsteps; ++k)
       simulate_();
   } catch (std::exception &e) {
-    std::cerr << "ERROR: simulation terminated after " << k << " steps.\n"
-              << "tstep at termination: " << step_ << '\n';
-    << e.what() << '\n';
+    std::cerr << "ERROR: simulation terminated after " << step() << " steps.\n"
+              << e.what() << '\n';
     throw;
   }
 
