@@ -313,7 +313,7 @@ void NodeEastFacingWall::collide_and_bound_(
 void NodeNorthFacingWall::stream_(Lattice &lat, const unsigned i,
                                   const unsigned j) const noexcept {
 #ifndef NDEBUG
-  const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
+  const static unsigned stream_directions[] = {1, 2, 3, 5, 6};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
   unsigned k, i_next, j_next;
