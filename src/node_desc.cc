@@ -313,7 +313,7 @@ void NodeEastFacingWall::collide_and_bound_(
 void NodeNorthFacingWall::stream_(Lattice &lat, const unsigned i,
                                   const unsigned j) const noexcept {
 #ifndef NDEBUG
-  const static unsigned stream_directions[] = {1, 2, 3, 5, 6};
+  const static unsigned stream_directions[] = {1, 3, 4, 7, 8};
   const static unsigned n =
       sizeof(stream_directions) / sizeof(stream_directions[0]);
   unsigned k, i_next, j_next;
@@ -379,11 +379,12 @@ void NodeNorthFacingWall::collide_and_bound_(
 //! \param ks Array of indexes for lattice directions to be copied
 //! \param nk Number of elements in ks
 //! \return Periodic boundary condition node descriptor
-NodePeriodic::NodePeriodic(const unsigned i_next, const unsigned j_next, 
-                           const unsigned* ks, const unsigned nk)
-    : i_next_(i_next), j_next_(j_next), 
+NodePeriodic::NodePeriodic(const unsigned i_next, const unsigned j_next,
+                           const unsigned *ks, const unsigned nk)
+    : i_next_(i_next), j_next_(j_next),
       ks_(std::unique_ptr<unsigned[]>(new unsigned[nk])), nk_(nk) {
-  assert(static_cast<int>(nk) >= 0 && nk <= 9); // TODO: consider turning this into a throw
+  assert(static_cast<int>(nk) >= 0 &&
+         nk <= 9); // TODO: consider turning this into a throw
   for (unsigned k = 0; k < nk; ++k) {
     assert(ks[k] < 9 && static_cast<int>(ks[k]) >= 0);
     ks_[k] = ks[k];
@@ -397,10 +398,11 @@ NodePeriodic::NodePeriodic(const unsigned i_next, const unsigned j_next,
 //! \param mmap Multiscale map
 //! \param i Index in the x-direction
 //! \param j Index in the y-direction
-void NodePeriodic::collide_and_bound_(
-    Lattice &lat, IncompFlowMultiscaleMap &mmap,
-    const IncompFlowCollisionManager &cman, const unsigned i,
-    const unsigned j) const {
+void NodePeriodic::collide_and_bound_(Lattice &lat,
+                                      IncompFlowMultiscaleMap &mmap,
+                                      const IncompFlowCollisionManager &cman,
+                                      const unsigned i,
+                                      const unsigned j) const {
   cman.collide(lat, mmap, i, j);
   assert(lat.in_bounds(i_next_, j_next_)); // TODO: throw?
   for (unsigned k = 0; k < nk_; ++k)

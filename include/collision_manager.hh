@@ -63,10 +63,8 @@ public:
   IncompFlowCollisionManager(AbstractIncompFlowEqFunct *aef,
                              AbstractConstitutiveEq *ace,
                              AbstractForce *af = nullptr)
-      : pfeq_(std::unique_ptr<AbstractIncompFlowEqFunct>(aef)),
-        pconstiteq_(std::unique_ptr<AbstractConstitutiveEq>(ace)),
-        pextforce_(std::unique_ptr<AbstractForce>(af)) {}
-  inline void collide(Lattice &lat, IncompFlowMultiscaleMap &mmap, 
+      : pfeq_(aef), pconstiteq_(ace), pextforce_(af) {}
+  inline void collide(Lattice &lat, IncompFlowMultiscaleMap &mmap,
                       const unsigned i, const unsigned j) const {
     collide_(lat, mmap, i, j);
   }

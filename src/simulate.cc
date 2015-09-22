@@ -37,11 +37,9 @@ IncompFlowSimulation::IncompFlowSimulation(
     const unsigned ni, const unsigned nj, const double rho, const double mu,
     AbstractIncompFlowEqFunct *pfeq, AbstractConstitutiveEq *pconstiteq,
     AbstractForce *pforce, std::vector<AbstractSimCallback *> *pscbs = nullptr)
-    : AbstractSimulation(), lat_(Lattice(ni, nj, rho)),
-      mmap_(IncompFlowMultiscaleMap(ni, nj, 
-            mu_to_omega(mu, lat_.cssq(), lat_.dt()))),
-      cman_(IncompFlowCollisionManager(pfeq, pconstiteq, pforce)),
-      spscbs_(std::unique_ptr<std::vector<AbstractSimCallback *>>(pscbs)) {}
+    : AbstractSimulation(), lat_(ni, nj, rho),
+      mmap_(ni, nj, mu_to_omega(mu, lat_.cssq(), lat_.dt())),
+      cman_(pfeq, pconstiteq, pforce), spscbs_(pscbs) {}
 
 //! Run an imcompressible flow simulation
 //!

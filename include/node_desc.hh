@@ -43,9 +43,9 @@ class IncompFlowCollisionManager;
 class AbstractNodeDesc {
 public:
   void stream(Lattice &, const unsigned, const unsigned) const;
-  void collide_and_bound(Lattice &, IncompFlowMultiscaleMap &,
-                         const IncompFlowCollisionManager &, const unsigned,
-                         const unsigned) const;
+  inline void collide_and_bound(Lattice &, IncompFlowMultiscaleMap &,
+                                const IncompFlowCollisionManager &,
+                                const unsigned, const unsigned) const;
   virtual ~AbstractNodeDesc() = 0;
 
 private:
@@ -55,7 +55,7 @@ private:
                                    const unsigned) const = 0;
   virtual void collide_and_bound_(Lattice &, IncompFlowMultiscaleMap &,
                                   const IncompFlowCollisionManager &,
-                                  const unsigned, const unsigned) const;
+                                  const unsigned, const unsigned) const = 0;
 };
 
 //! D2Q9 base class collide and bound
@@ -66,10 +66,9 @@ private:
 //! \param i Index of node in the y-direction
 //! \param j Index of node in the x-direction
 inline void
-AbstractNodeDesc::collide_and_bound_(Lattice &lat,
-                                     IncompFlowMultiscaleMap &mmap,
-                                     const IncompFlowCollisionManager &cman,
-                                     const unsigned i, const unsigned j) const {
+AbstractNodeDesc::collide_and_bound(Lattice &lat, IncompFlowMultiscaleMap &mmap,
+                                    const IncompFlowCollisionManager &cman,
+                                    const unsigned i, const unsigned j) const {
   collide_and_bound_(lat, mmap, cman, i, j);
 }
 
@@ -214,7 +213,7 @@ private:
 constexpr std::size_t max_node_desc_size() {
   return std::max({sizeof(NodeActive), sizeof(NodeWestFacingWall),
                    sizeof(NodeSouthFacingWall), sizeof(NodeEastFacingWall),
-                   sizeof(NodeNorthFacingWall)});
+                   sizeof(NodeNorthFacingWall), sizeof(NodePeriodic)});
 }
 
 } // namespace d2q9

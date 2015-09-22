@@ -48,11 +48,9 @@ public:
   // TODO: make more constructors, initializers, and factories
   Lattice() : ni_(0), nj_(0), spf_(nullptr), spftemp_(nullptr) {}
   Lattice(const unsigned ni, const unsigned nj, const double rho = 1.0)
-      : ni_(ni), nj_(nj),
-        spf_(std::unique_ptr<double[]>(new double[ni * nj * num_k()])),
-        spftemp_(std::unique_ptr<double[]>(new double[ni * nj * num_k()])),
-        node_descs_(std::vector<AbstractNodeDesc *>(ni * nj)),
-        mem_pool_(SimpleMemPool(max_node_desc_size() * ni * nj)) {
+      : ni_(ni), nj_(nj), spf_(new double[ni * nj * num_k()]),
+        spftemp_(new double[ni * nj * num_k()]), node_descs_(ni * nj),
+        mem_pool_(max_node_desc_size() * ni * nj) {
     init_f_(rho);
   }
   Lattice(const Lattice &);
@@ -79,22 +77,36 @@ public:
   static constexpr unsigned num_k() { return nk_; }
   inline const double *pf() const noexcept { return spf_.get(); }
   inline double f(unsigned i, unsigned j, unsigned k) const noexcept {
+    assert(k < 9 && static_cast<int>(k) >= 0 &&
+           "index `k` out of bounds in Lattice::pc");
+    assert(in_bounds(i, j) && "out of bounds in Lattice::f");
     return spf_[ni_ * (i * nj_ + j) + k];
   }
   inline const double *pftemp() const noexcept { return spftemp_.get(); }
   inline double ftemp(unsigned i, unsigned j, unsigned k) const noexcept {
+    assert(k < 9 && static_cast<int>(k) >= 0 &&
+           "index `k` out of bounds in Lattice::ftemp");
+    assert(in_bounds(i, j) && "out of bounds in Lattice::ftemp");
     return spftemp_[ni_ * (i * nj_ + j) + k];
   }
   inline double *pf(const unsigned i, const unsigned j) {
+    assert(in_bounds(i, j) && "out of bounds in Lattice::pf");
     return &(spf_[(i * nj_ + j) * num_k()]);
   }
   inline double &f(const unsigned i, const unsigned j, const unsigned k) {
+    assert(k < 9 && static_cast<int>(k) >= 0 &&
+           "index `k` out of bounds in Lattice::f");
+    assert(in_bounds(i, j) && "out of bounds in Lattice::f");
     return *(pf(i, j) + k);
   }
   inline double *pft(const unsigned i, const unsigned j) {
+    assert(in_bounds(i, j) && "out of bounds in Lattice::pft");
     return &(spftemp_[(i * nj_ + j) * num_k()]);
   }
   inline double &ft(const unsigned i, const unsigned j, const unsigned k) {
+    assert(k < 9 && static_cast<int>(k) >= 0 &&
+           "index `k` out of bounds in Lattice::ft");
+    assert(in_bounds(i, j) && "out of bounds in Lattice::ft");
     return *(pft(i, j) + k);
   }
   inline const std::vector<AbstractNodeDesc *> &node_descs() const noexcept {
@@ -102,11 +114,13 @@ public:
   }
   inline const AbstractNodeDesc &node_desc(const unsigned i,
                                            const unsigned j) const {
+    assert(in_bounds(i, j) && "out of bounds in Lattice::node_desc");
     return *(node_descs_[nj_ * i + j]);
   }
   template <typename Node, typename... Args>
   inline void set_node_desc(const unsigned i, const unsigned j, Args... args) {
 #ifndef NDEBUG
+    assert(in_bounds(i, j) && "out of bounds in Lattice::set_node_desc");
     AbstractNodeDesc *pnd = mem_pool_.allocate<Node>(args...);
     assert(pnd != nullptr);
     node_descs_[nj_ * i + j] = pnd;
@@ -116,17 +130,24 @@ public:
   }
   inline const double *pc(const unsigned k) const noexcept {
     assert(k <= 9 && static_cast<int>(k) >= 0 &&
-           "index `k` out of bounds in Lattice::pe");
+           "index `k` out of bounds in Lattice::pc");
     return lat_vecs_[k];
   }
   inline double c(const unsigned k, const unsigned c) const noexcept {
+    assert(k <= 9 && static_cast<int>(k) >= 0 &&
+           "index `k` out of bounds in Lattice::c");
     return *(pc(k) + c);
   }
-  inline double w(const unsigned k) const noexcept { return w_[k]; }
+  inline double w(const unsigned k) const noexcept {
+    assert(k <= 9 && static_cast<int>(k) >= 0 &&
+           "index `k` out of bounds in Lattice::w");
+    return w_[k];
+  }
 
   // mutators
   // stream
   inline void stream(const unsigned i, const unsigned j) {
+    assert(in_bounds(i, j) && "out of bounds in Lattice::stream");
     node_desc(i, j).stream(*this, i, j);
   }
   void stream(const unsigned bi, const unsigned ei, const unsigned bj,
@@ -142,6 +163,7 @@ public:
   inline void collide_and_bound(IncompFlowMultiscaleMap &mmap,
                                 const IncompFlowCollisionManager &cman,
                                 const unsigned i, const unsigned j) {
+    assert(in_bounds(i, j) && "out of bounds in Lattice::collide_and_bound");
     node_desc(i, j).collide_and_bound(*this, mmap, cman, i, j);
   }
   void collide_and_bound(IncompFlowMultiscaleMap &mmap,

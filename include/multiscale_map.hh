@@ -52,8 +52,7 @@ inline double mu_to_omega(const double mu, const double cssq, const double dt) {
 class AbstractMultiscaleMap {
 public:
   AbstractMultiscaleMap(const unsigned ni, const unsigned nj)
-      : ni_(ni), nj_(nj),
-        sprho_(std::unique_ptr<double[]>(new double[ni * nj])) {}
+      : ni_(ni), nj_(nj), sprho_(new double[ni * nj]) {}
   virtual ~AbstractMultiscaleMap() = 0;
   inline double num_i() const noexcept { return ni_; }
   inline double num_j() const noexcept { return nj_; }
@@ -97,9 +96,8 @@ class IncompFlowMultiscaleMap : public AbstractMultiscaleMap {
 public:
   IncompFlowMultiscaleMap(const unsigned ni, const unsigned nj,
                           const double omega)
-      : AbstractMultiscaleMap(ni, nj),
-        spu_(std::unique_ptr<double[]>(new double[ni * nj * 2])),
-        spomega_(std::unique_ptr<double[]>(new double[ni * nj])) {
+      : AbstractMultiscaleMap(ni, nj), spu_(new double[ni * nj * 2]),
+        spomega_(new double[ni * nj]) {
     init_(omega);
   }
   ~IncompFlowMultiscaleMap() {}
