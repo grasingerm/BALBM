@@ -16,7 +16,11 @@ add_executable(test_poiseuille_newtonian test_poiseuille_newtonian.cc
                                          ../src/simulate.cc             )
 
 # link libraries
-target_link_libraries(test_poiseuille_newtonian armadillo m)
+target_link_libraries(test_poiseuille_newtonian armadillo)
+if (${UNIX})
+  target_link_libraries(test_poiseuille_newtonian m)
+endif ()
+
 
 # install
 install(
