@@ -5,6 +5,7 @@ project(BALBM)
 # dependencies
 add_executable(test_mem test_mem.cc)
 add_executable(test_prof test_prof.cc)
+add_executable(test_lat_vecs test_lat_vecs.cc ../src/lattice.cc)
 add_executable(test_poiseuille_newtonian test_poiseuille_newtonian.cc
                                          ../src/collision_manager.cc
                                          ../src/constitutive.cc
@@ -27,6 +28,7 @@ install(
         TARGETS 
                 test_mem
                 test_prof
+                test_lat_vecs
                 test_poiseuille_newtonian
         DESTINATION 
                 tests
