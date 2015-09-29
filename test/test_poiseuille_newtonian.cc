@@ -76,7 +76,7 @@ int main() {
     sim.set_node_desc<NodePeriodic>(0, j, ni - 2, j, east_to_west, 3);
     sim.set_node_desc<NodePeriodic>(ni - 1, j, 1, j, west_to_east, 3);
   }
-  for (unsigned i = 0; i < ni; ++i) {
+  for (unsigned i = 1; i < ni-1; ++i) {
     sim.set_node_desc<NodeNorthFacingWall>(i, 0);
     sim.set_node_desc<NodeSouthFacingWall>(i, nj - 1);
   }

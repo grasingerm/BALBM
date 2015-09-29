@@ -136,6 +136,8 @@ public:
   inline double c(const unsigned k, const unsigned c) const noexcept {
     assert(k <= 9 && static_cast<int>(k) >= 0 &&
            "index `k` out of bounds in Lattice::c");
+    assert(c <= 2 && static_cast<int>(c) >= 0 &&
+           "index `c` out of bounds in Lattice::c");
     return *(pc(k) + c);
   }
   inline double w(const unsigned k) const noexcept {
